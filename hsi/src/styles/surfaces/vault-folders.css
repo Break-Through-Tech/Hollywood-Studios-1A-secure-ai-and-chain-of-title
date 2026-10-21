@@ -1,0 +1,84 @@
+/* Vault folders */
+.vault-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vault-breadcrumb-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.vault-breadcrumb-link:hover {
+  color: var(--text);
+}
+.vault-breadcrumb-sep {
+  font-size: 20px;
+  color: var(--hair-strong);
+}
+
+.vault-folder-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+}
+.vault-folder-card--dragover {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 2px rgba(38,57,95, 0.35);
+}
+
+.vault-move-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.vault-move-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.vault-move-option:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--hair-strong);
+}
+.vault-move-option:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.vault-move-icon {
+  font-size: 16px;
+}
+.vault-move-current-label {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+}
+
+.vault-folder-glyph { width: 40px; height: 40px; color: var(--text-3); }
+.vault-subheading { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); font-family: var(--font-ui); margin: 8px 0 12px; }
+.vault-breadcrumb-link { font-family: var(--font-display); font-size: 24px; letter-spacing: -0.015em; }
+.vault-breadcrumb-sep { font-size: 22px; }

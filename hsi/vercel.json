@@ -1,0 +1,24 @@
+{
+  "headers": [
+    { "source": "/executive-summary", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] },
+    { "source": "/decks/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] }
+  ],
+  "rewrites": [
+    { "source": "/api/apply", "destination": "/api/auth?path=apply" },
+    { "source": "/api/check-email", "destination": "/api/auth?path=check-email" },
+    { "source": "/api/send-otp", "destination": "/api/auth?path=send-otp" },
+    { "source": "/api/verify-otp", "destination": "/api/auth?path=verify-otp" },
+    { "source": "/api/blob/:path*", "destination": "/api/auth?path=blob/:path*" },
+    { "source": "/api/upload/:path*", "destination": "/api/auth?path=upload/:path*" },
+    { "source": "/api/auth/:path*", "destination": "/api/auth?path=:path*" },
+    { "source": "/api/entity/:path*", "destination": "/api/entity?path=:path*" },
+    { "source": "/api/network/:path*", "destination": "/api/network?path=:path*" },
+    { "source": "/api/people/:path*", "destination": "/api/people?path=:path*" },
+    { "source": "/api/profile/:path*", "destination": "/api/profile?path=:path*" },
+    { "source": "/api/search/:path*", "destination": "/api/search?path=:path*" },
+    { "source": "/api/settings/:path*", "destination": "/api/settings?path=:path*" },
+    { "source": "/api/stripe/:path*", "destination": "/api/stripe?path=:path*" },
+    { "source": "/api/vault/:path*", "destination": "/api/vault?path=:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

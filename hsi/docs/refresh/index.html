@@ -1,0 +1,856 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body>
+<title>HSI Refresh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Tokens. These are the proposed app tokens, verbatim — the page
+   is set in the system it argues for.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --ink: #0F1B33;
+  --navy: #26395F;
+  --navy-deep: #1B2A4A;
+  --gold: #B8922E;
+  --gold-bright: #C9A84C;
+  --gold-pale: #F5EDD6;
+  --paper: #F3F4F8;
+  --surface: #FFFFFF;
+  --surface-2: #F8F9FB;
+  --text: #0F1B33;
+  --text-2: #5C6579;
+  --text-3: #8B93A6;
+  --hair: rgba(15,27,51,0.10);
+  --hair-2: rgba(15,27,51,0.06);
+  --link: #26395F;
+  --good: #1E7A4C; --good-bg: #E6F4EC;
+  --warn: #B45309; --warn-bg: #FBEEDC;
+  --bad: #B42318;  --bad-bg: #FBE7E4;
+  --shadow: 0 1px 2px rgba(15,27,51,0.06), 0 8px 24px rgba(15,27,51,0.08);
+  --font-display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-script: 'Courier Prime', 'Courier New', Courier, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+  --btn-primary-bg: var(--navy); --btn-primary-fg: #fff;
+  --nav-active-bg: rgba(38,57,95,0.08);
+  --old-indigo: #4f46e5; --old-blue: #2563eb; --old-lime: #DEFF9B;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #E7EAF2; --navy: #A9BBE6; --navy-deep: #C4D0EE;
+    --gold: #D4B25C; --gold-bright: #E2C476; --gold-pale: #2B2614;
+    --paper: #0B1220; --surface: #131C30; --surface-2: #182339;
+    --text: #E7EAF2; --text-2: #A0A8BC; --text-3: #6F7891;
+    --hair: rgba(231,234,242,0.12); --hair-2: rgba(231,234,242,0.07);
+    --link: #A9BBE6;
+    --good: #6CCB94; --good-bg: #12301F;
+    --warn: #E8A65A; --warn-bg: #3A2710;
+    --bad: #F08B82; --bad-bg: #3B1A17;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.45);
+    --btn-primary-bg: #E7EAF2; --btn-primary-fg: #0F1B33;
+    --nav-active-bg: rgba(231,234,242,0.09);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #E7EAF2; --navy: #A9BBE6; --navy-deep: #C4D0EE;
+  --gold: #D4B25C; --gold-bright: #E2C476; --gold-pale: #2B2614;
+  --paper: #0B1220; --surface: #131C30; --surface-2: #182339;
+  --text: #E7EAF2; --text-2: #A0A8BC; --text-3: #6F7891;
+  --hair: rgba(231,234,242,0.12); --hair-2: rgba(231,234,242,0.07);
+  --link: #A9BBE6;
+  --good: #6CCB94; --good-bg: #12301F;
+  --warn: #E8A65A; --warn-bg: #3A2710;
+  --bad: #F08B82; --bad-bg: #3B1A17;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.45);
+  --btn-primary-bg: #E7EAF2; --btn-primary-fg: #0F1B33;
+  --nav-active-bg: rgba(231,234,242,0.09);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--text);
+  font-family: var(--font-ui); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+img { max-width: 100%; display: block; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/* ───────────── Document layout ───────────── */
+.doc { padding-inline: 20px; padding-block: 0 96px; }
+.col { max-width: 720px; margin-inline: auto; }
+.wide { max-width: 1160px; margin-inline: auto; }
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--hair);
+  margin-inline: -20px; padding-inline: 20px;
+}
+.topbar-in { max-width: 1160px; margin-inline: auto; display: flex; align-items: center; gap: 24px; height: 52px; }
+.topbar .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; white-space: nowrap; }
+.topbar .brand img { width: 22px; height: 22px; }
+.topnav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-left: auto; }
+.topnav::-webkit-scrollbar { display: none; }
+.topnav a { font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: var(--r-sm); white-space: nowrap; }
+.topnav a:hover { color: var(--text); background: var(--nav-active-bg); }
+
+.hero { padding-block: 72px 40px; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+.hero h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 600; letter-spacing: -0.03em; margin-top: 14px; font-variation-settings: 'opsz' 96; }
+.hero .lede { font-size: 19px; line-height: 1.5; color: var(--text-2); margin-top: 20px; max-width: 620px; text-wrap: pretty; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 28px; font-size: 13px; color: var(--text-3); }
+.hero .meta b { color: var(--text-2); font-weight: 600; }
+
+.sec { padding-block: 56px 8px; }
+.sec-head { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: baseline; margin-bottom: 22px; }
+.sec-head .n { font-family: var(--font-mono); font-size: 12px; color: var(--gold); letter-spacing: 0.06em; }
+.sec-head h2 { font-size: clamp(28px, 3.6vw, 36px); }
+.sec-head p { grid-column: 2; color: var(--text-2); font-size: 17px; margin-top: 8px; max-width: 600px; text-wrap: pretty; }
+.prose > p + p { margin-top: 14px; }
+.prose p { text-wrap: pretty; }
+.prose h3 { font-size: 22px; margin-top: 36px; margin-bottom: 10px; }
+.prose ul { padding-left: 20px; margin: 10px 0 0; }
+.prose li + li { margin-top: 6px; }
+.note { border-left: 3px solid var(--gold-bright); padding: 4px 0 4px 16px; color: var(--text-2); font-size: 15px; margin-top: 18px; }
+
+/* Findings */
+.findings { display: grid; gap: 14px; margin-top: 8px; }
+.finding {
+  display: grid; grid-template-columns: 1fr; gap: 14px;
+  background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 20px;
+}
+@media (min-width: 860px) { .finding { grid-template-columns: minmax(0,1fr) 300px; align-items: start; } .finding.no-shot { grid-template-columns: 1fr; } }
+.finding h3 { font-size: 20px; margin: 0 0 6px; }
+.finding p { color: var(--text-2); font-size: 15px; }
+.finding .ev { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.ev span { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-2); background: var(--surface-2); border: 1px solid var(--hair-2); border-radius: var(--r-sm); padding: 3px 8px; }
+.shot { border: 1px solid var(--hair); border-radius: var(--r-md); overflow: hidden; background: #fff; }
+.shot img { width: 100%; }
+.shot figcaption { font-size: 12px; color: var(--text-3); padding: 8px 10px; border-top: 1px solid var(--hair-2); background: var(--surface-2); }
+.shots-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.swatchrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.swatchrow i { width: 26px; height: 26px; border-radius: 6px; display: inline-block; border: 1px solid var(--hair); }
+.swatchrow b { font-size: 12px; font-weight: 500; color: var(--text-2); align-self: center; margin-right: 8px; }
+
+/* Principles */
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 8px; }
+.principle { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 20px; }
+.principle h3 { font-size: 19px; margin-bottom: 8px; }
+.principle p { font-size: 14.5px; color: var(--text-2); }
+
+/* Tokens */
+.tok { display: grid; gap: 28px; margin-top: 8px; }
+.tok h3 { font-size: 20px; margin-bottom: 12px; }
+.palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.sw { border: 1px solid var(--hair); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+.sw i { display: block; height: 56px; }
+.sw div { padding: 8px 10px; }
+.sw b { display: block; font-size: 13px; font-weight: 600; }
+.sw code { display: block; font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.sw small { display: block; font-size: 12px; color: var(--text-2); margin-top: 4px; line-height: 1.35; }
+.typerow { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--hair-2); }
+.typerow:last-child { border-bottom: 1px solid var(--hair-2); }
+.typerow .lbl { font-size: 12px; color: var(--text-3); font-family: var(--font-mono); }
+.t-display { font-family: var(--font-display); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+.t-h2 { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.015em; }
+.t-h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.t-body { font-size: 15px; }
+.t-ui { font-size: 13.5px; font-weight: 500; }
+.t-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+.t-script { font-family: var(--font-script); font-size: 14px; white-space: pre; line-height: 1.35; }
+.t-mono { font-family: var(--font-mono); font-size: 12.5px; }
+@media (max-width: 560px) { .typerow { grid-template-columns: 1fr; gap: 4px; } }
+.scale { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.scale div { background: var(--surface); border: 1px solid var(--hair); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-2); }
+
+/* ───────────── The proposed component set (also used by mockups) ───────────── */
+.btn { font-family: var(--font-ui); font-size: 13.5px; font-weight: 600; height: 36px; padding: 0 16px; border-radius: var(--r-md); border: 1px solid transparent; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; text-decoration: none; line-height: 1; transition: background .15s, border-color .15s, color .15s; }
+.btn-primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--hair); box-shadow: 0 1px 1px rgba(15,27,51,0.04); }
+.btn-secondary:hover { border-color: rgba(15,27,51,0.22); }
+.btn-ghost { background: transparent; color: var(--text-2); }
+.btn-ghost:hover { background: var(--nav-active-bg); color: var(--text); }
+.btn-gold { background: var(--gold-pale); color: var(--gold); border-color: color-mix(in srgb, var(--gold) 35%, transparent); }
+.btn-gold:hover { border-color: var(--gold); }
+.btn-sm { height: 30px; padding: 0 12px; font-size: 12.5px; border-radius: var(--r-sm); }
+.btn-danger { background: transparent; color: var(--bad); border-color: transparent; }
+.btn-danger:hover { background: var(--bad-bg); }
+.input { font-family: var(--font-ui); font-size: 14px; height: 38px; padding: 0 12px; border-radius: var(--r-md); border: 1px solid var(--hair); background: var(--surface); color: var(--text); width: 100%; outline: none; }
+.input:focus { border-color: var(--navy); box-shadow: 0 0 0 3px color-mix(in srgb, var(--navy) 14%, transparent); }
+.input::placeholder { color: var(--text-3); }
+.chip { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: var(--r-pill); font-size: 12px; font-weight: 500; background: var(--surface-2); border: 1px solid var(--hair-2); color: var(--text-2); }
+.chip-gold { background: var(--gold-pale); color: var(--gold); border-color: color-mix(in srgb, var(--gold) 30%, transparent); }
+.chip-good { background: var(--good-bg); color: var(--good); border-color: transparent; }
+.chip-warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.chip-bad { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border: 1px solid var(--hair-2); border-radius: var(--r-md); }
+.tab { font-size: 13px; font-weight: 500; color: var(--text-2); padding: 5px 12px; border-radius: 7px; background: transparent; border: 0; cursor: pointer; font-family: var(--font-ui); }
+.tab.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(15,27,51,0.10); }
+.seal { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--gold); }
+.seal i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--gold); display: inline-grid; place-items: center; font-size: 9px; font-style: normal; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 1px solid var(--hair-2); flex-shrink: 0; }
+.avatar.ini { display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--navy); background: var(--nav-active-bg); }
+.comp-sheet { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 22px; display: grid; gap: 22px; }
+.comp-row { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; }
+.comp-row .lbl { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-3); }
+.comp-row .items { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+@media (max-width: 560px) { .comp-row { grid-template-columns: 1fr; gap: 8px; } }
+
+/* ───────────── Mockup frames ───────────── */
+.mock { margin-top: 18px; }
+.mock-cap { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; margin-bottom: 10px; }
+.mock-cap h3 { font-size: 20px; }
+.mock-cap p { font-size: 14px; color: var(--text-2); }
+.frame { border: 1px solid var(--hair); border-radius: 12px; overflow: hidden; background: var(--paper); box-shadow: var(--shadow); }
+.frame-bar { height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-bottom: 1px solid var(--hair); background: var(--surface); }
+.frame-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--hair); }
+.frame-bar span { margin-left: 10px; font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.scaler { position: relative; overflow: hidden; }
+.scaler > .design { width: 1120px; transform-origin: top left; }
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 300px)); gap: 20px; justify-content: center; margin-top: 18px; }
+.phone { border: 1px solid var(--hair); border-radius: 28px; overflow: hidden; background: var(--paper); box-shadow: var(--shadow); }
+.phone .scaler > .design { width: 390px; }
+
+/* ── The proposed app, as CSS. Prefix app- so nothing collides with the doc. ── */
+.app { display: grid; grid-template-columns: 224px 1fr; min-height: 640px; background: var(--paper); color: var(--text); font-size: 14px; }
+.app-rail { border-right: 1px solid var(--hair); background: var(--surface); display: flex; flex-direction: column; padding: 14px 12px; gap: 4px; }
+.app-rail .logo { display: flex; align-items: center; gap: 10px; padding: 6px 8px 16px; font-family: var(--font-display); font-weight: 600; font-size: 14.5px; letter-spacing: -0.01em; }
+.app-rail .logo img { width: 26px; height: 26px; }
+.app-nav a { display: flex; align-items: center; gap: 11px; height: 36px; padding: 0 10px; border-radius: var(--r-sm); color: var(--text-2); font-weight: 500; font-size: 13.5px; text-decoration: none; }
+.app-nav a svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.app-nav a.on { background: var(--nav-active-bg); color: var(--text); }
+.app-nav a .cnt { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.app-rail .grp { font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 14px 10px 6px; }
+.app-rail .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 8px 8px 2px; border-top: 1px solid var(--hair-2); padding-top: 12px; }
+.app-rail .me b { font-size: 13px; font-weight: 600; display: block; }
+.app-rail .me small { font-size: 11.5px; color: var(--text-3); }
+.app-main { min-width: 0; }
+.app-top { height: 56px; display: flex; align-items: center; gap: 14px; padding: 0 28px; border-bottom: 1px solid var(--hair); background: var(--surface); }
+.app-top h1 { font-size: 18px; font-weight: 600; }
+.app-top .search { margin-left: auto; width: 300px; position: relative; }
+.app-top .search .input { height: 34px; padding-left: 32px; background: var(--surface-2); }
+.app-top .search svg { position: absolute; left: 10px; top: 9px; width: 16px; height: 16px; stroke: var(--text-3); fill: none; stroke-width: 1.8; }
+.app-body { padding: 24px 28px; }
+.app-h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.015em; }
+.app-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); }
+.muted { color: var(--text-2); } .faint { color: var(--text-3); }
+.row { display: flex; align-items: center; gap: 10px; }
+.hairline { height: 1px; background: var(--hair-2); }
+
+/* Home */
+.home { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 24px; }
+.composer { padding: 14px 16px; display: grid; gap: 10px; }
+.composer .field { font-size: 15px; color: var(--text-3); padding: 6px 0 14px; border-bottom: 1px solid var(--hair-2); }
+.composer .acts { display: flex; align-items: center; gap: 6px; }
+.post { padding: 18px 20px; display: grid; gap: 12px; }
+.post + .post { border-top: 1px solid var(--hair-2); }
+.post .who b { font-weight: 600; font-size: 14px; }
+.post .who small { color: var(--text-3); font-size: 12.5px; margin-left: 6px; }
+.post .who .t { margin-left: auto; font-size: 12px; color: var(--text-3); font-family: var(--font-mono); }
+.post p { font-size: 14.5px; line-height: 1.55; }
+.post .acts { display: flex; gap: 14px; font-size: 12.5px; color: var(--text-3); font-weight: 500; }
+.link-card { display: grid; grid-template-columns: 96px 1fr; border: 1px solid var(--hair); border-radius: var(--r-md); overflow: hidden; }
+.link-card img { width: 96px; height: 100%; object-fit: cover; }
+.link-card div { padding: 10px 12px; }
+.link-card b { font-size: 13.5px; display: block; }
+.link-card small { color: var(--text-2); font-size: 12px; display: block; margin-top: 2px; }
+.side { display: grid; gap: 16px; align-content: start; }
+.side .card { padding: 16px; }
+.side h4 { font-size: 13.5px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: baseline; }
+.side h4 span { margin-left: auto; font-size: 12px; color: var(--text-3); font-weight: 500; }
+.pl { display: grid; gap: 10px; }
+.pl .row b { font-size: 13.5px; font-weight: 600; display: block; line-height: 1.2; }
+.pl .row small { font-size: 12px; color: var(--text-3); }
+.pl .row .btn { margin-left: auto; }
+
+/* People */
+.featured { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fcard { display: grid; grid-template-columns: 124px 1fr; gap: 18px; padding: 18px; }
+.fcard img.portrait { width: 124px; aspect-ratio: 3/4; object-fit: cover; object-position: top; border-radius: var(--r-md); }
+.fcard .name { font-family: var(--font-display); font-size: 21px; font-weight: 600; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fcard .hl { font-size: 13.5px; color: var(--text-2); margin-top: 2px; }
+.fcard .bl { font-size: 13.5px; line-height: 1.5; margin-top: 10px; }
+.fcard .cr { display: flex; gap: 6px; margin-top: 12px; }
+.fcard .cr img { width: 30px; aspect-ratio: 2/3; object-fit: cover; border-radius: 3px; border: 1px solid var(--hair-2); }
+.fcard .foot { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.dir { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pcard { padding: 14px; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+.pcard .avatar { width: 44px; height: 44px; }
+.pcard b { font-size: 14px; font-weight: 600; display: block; }
+.pcard small { font-size: 12.5px; color: var(--text-2); display: block; margin-top: 1px; line-height: 1.35; }
+.pcard .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Profile */
+.prof-head { display: grid; grid-template-columns: 148px 1fr auto; gap: 24px; align-items: start; }
+.prof-head img.portrait { width: 148px; aspect-ratio: 3/4; object-fit: cover; object-position: top; border-radius: var(--r-md); }
+.prof-head h1 { font-family: var(--font-display); font-size: 34px; font-weight: 600; letter-spacing: -0.025em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.prof-head .hl { font-size: 15px; color: var(--text-2); margin-top: 4px; }
+.prof-head .facts { display: flex; gap: 22px; margin-top: 16px; }
+.prof-head .facts b { font-family: var(--font-display); font-size: 22px; font-weight: 600; display: block; line-height: 1; }
+.prof-head .facts small { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
+.prof-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 28px; margin-top: 28px; }
+.known { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 12px; }
+.known figure { margin: 0; }
+.known img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: var(--r-sm); border: 1px solid var(--hair-2); }
+.known figcaption { font-size: 12px; margin-top: 6px; line-height: 1.3; }
+.known figcaption small { color: var(--text-3); display: block; }
+.credits { margin-top: 10px; }
+.credits .cr { display: grid; grid-template-columns: 46px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--hair-2); font-size: 13.5px; }
+.credits .cr .y { font-family: var(--font-mono); font-size: 12px; color: var(--text-3); }
+.credits .cr b { font-weight: 600; }
+.credits .cr small { color: var(--text-2); display: block; font-size: 12.5px; }
+.credits .cr .ep { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.prof-about p { font-size: 14.5px; line-height: 1.6; margin-top: 10px; }
+
+/* Creative OS */
+.cos { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 24px; }
+.script { padding: 28px 44px; font-family: var(--font-script); font-size: 13px; line-height: 1.45; white-space: pre; color: var(--text); overflow: hidden; }
+.pgno { position: absolute; right: 18px; top: 12px; font-family: var(--font-script); font-size: 12px; color: var(--text-3); }
+.cov { padding: 18px; display: grid; gap: 14px; }
+.cov .verdict { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--hair); border-radius: var(--r-md); overflow: hidden; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.cov .verdict span { padding: 9px 0; color: var(--text-3); }
+.cov .verdict span + span { border-left: 1px solid var(--hair); }
+.cov .verdict span.on { background: var(--gold-pale); color: var(--gold); }
+.meter { display: grid; grid-template-columns: 90px 1fr 36px; gap: 10px; align-items: center; font-size: 13px; }
+.meter i { height: 6px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--hair-2); position: relative; display: block; }
+.meter i b { position: absolute; inset: 0; width: var(--v); background: var(--navy); border-radius: 3px; }
+.meter span:last-child { font-family: var(--font-mono); font-size: 12px; text-align: right; color: var(--text-2); }
+.cov p { font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+.ts { display: grid; gap: 6px; padding: 12px; background: var(--surface-2); border-radius: var(--r-md); border: 1px solid var(--hair-2); }
+.ts .h { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); word-break: break-all; }
+
+/* Phone */
+.ph { min-height: 780px; display: flex; flex-direction: column; background: var(--paper); font-size: 14px; }
+.ph-top { height: 52px; display: flex; align-items: center; padding: 0 18px; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--hair); }
+.ph-top h1 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.ph-body { padding: 16px; display: grid; gap: 12px; flex: 1; align-content: start; }
+.ph-tabs { margin-top: auto; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--hair); background: var(--surface); padding: 8px 6px 18px; }
+.ph-tabs a { display: grid; justify-items: center; gap: 4px; font-size: 10.5px; font-weight: 500; color: var(--text-3); text-decoration: none; }
+.ph-tabs a svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ph-tabs a.on { color: var(--text); }
+.ph .prof-head { grid-template-columns: 96px 1fr; gap: 14px; }
+.ph .prof-head img.portrait { width: 96px; }
+.ph .prof-head h1 { font-size: 24px; }
+.ph .facts { gap: 16px; }
+.ph .known { grid-template-columns: repeat(3, 1fr); }
+
+/* Plan */
+.plan { display: grid; gap: 12px; margin-top: 8px; }
+.phase { display: grid; grid-template-columns: 96px 1fr; gap: 16px; background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 18px 20px; }
+.phase .k { font-family: var(--font-mono); font-size: 12px; color: var(--gold); }
+.phase .k small { display: block; color: var(--text-3); margin-top: 4px; font-size: 11px; }
+.phase h3 { font-size: 19px; margin-bottom: 6px; }
+.phase p { font-size: 14.5px; color: var(--text-2); }
+.phase ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; color: var(--text-2); }
+.phase li + li { margin-top: 4px; }
+.phase .files { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+.phase .files code { font-size: 11px; background: var(--surface-2); border: 1px solid var(--hair-2); border-radius: 4px; padding: 2px 6px; color: var(--text-2); }
+@media (max-width: 560px) { .phase { grid-template-columns: 1fr; gap: 8px; } }
+table.pages { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.pages th { text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--hair); }
+.pages td { padding: 10px; border-bottom: 1px solid var(--hair-2); vertical-align: top; color: var(--text-2); }
+.pages td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+
+.decisions { display: grid; gap: 12px; margin-top: 8px; }
+.dec { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 18px 20px; }
+.dec h3 { font-size: 18px; margin-bottom: 6px; }
+.dec p { font-size: 14.5px; color: var(--text-2); }
+.dec .rec { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--gold); }
+.foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 13px; color: var(--text-3); }
+
+@media (max-width: 860px) {
+  .home, .prof-grid, .cos, .featured { grid-template-columns: 1fr; }
+  .shots-2 { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="doc">
+  <div class="topbar"><div class="topbar-in">
+    <div class="brand"><img src="img/logo-sm.png" alt=""> HSI Refresh</div>
+    <nav class="topnav">
+      <a href="#diagnosis">Diagnosis</a><a href="#direction">Direction</a><a href="#system">System</a><a href="#mockups">Mockups</a><a href="#pages">Page by page</a><a href="#plan">Plan</a><a href="#decisions">Decisions</a>
+    </nav>
+  </div></div>
+
+  <header class="hero col">
+    <div class="eyebrow">Design proposal · September 2026</div>
+    <h1>The same app, dressed for the room it's in.</h1>
+    <p class="lede">HSI sells a private studio network and a secure creative OS to people who make film and television. Right now it wears a navy-and-gold brand on the front door and a stock SaaS template inside. This proposes one system for both — no feature changes, every screen re-set in it.</p>
+    <div class="meta">
+      <span><b>Scope</b> visual only</span>
+      <span><b>Audited</b> 9 routes, 2 widths, 8,899 lines of CSS, 40 components</span>
+      <span><b>This page</b> is set in the proposed system</span>
+    </div>
+  </header>
+
+  <!-- ───────────────────────── 01 Diagnosis ───────────────────────── -->
+  <section class="sec col" id="diagnosis">
+    <div class="sec-head"><span class="n">01</span><h2>Why it feels old</h2><p>"Old" here is not age — the code is months old. It is the feeling of a template: decisions that were never made, so defaults made them. Ten specific ones, with evidence.</p></div>
+
+    <div class="findings">
+      <article class="finding">
+        <div>
+          <h3>Two identities in one product</h3>
+          <p>The brand is navy and gold — logo, hero, login. The app is Tailwind's indigo and blue. In 8,899 lines of CSS the brand gold appears three times; the off-brand indigo and blue appear forty-two. A member walks through a gold door into someone else's dashboard.</p>
+          <div class="swatchrow"><b>Brand</b><i style="background:#293758"></i><i style="background:#B08D2F"></i><i style="background:#C9A84C"></i><b style="margin-left:14px">App</b><i style="background:#4f46e5"></i><i style="background:#2563eb"></i><i style="background:#3b82f6"></i><i style="background:#DEFF9B"></i></div>
+          <div class="ev"><span>#4f46e5 ×24</span><span>#2563eb ×14</span><span>#3b82f6 ×4</span><span>#b08d2f ×3</span><span>#293758 ×3</span></div>
+        </div>
+        <figure class="shot"><img src="shots/_network.jpg" alt="Current Home page: indigo tabs and avatars on a white page"><figcaption>Home today — indigo tabs, indigo avatars, blue globe</figcaption></figure>
+      </article>
+
+      <article class="finding">
+        <div>
+          <h3>One typeface doing every job</h3>
+          <p>Urbanist is a geometric display face — round, friendly, made for posters. It is set at every size from 9px hashes to 100px headlines, in nine weights. Small UI text in it reads soft; large headlines read like a startup deck. Thirty distinct sizes are in use, including 11.5, 12.5 and 13.5.</p>
+          <div class="ev"><span>30 font sizes</span><span>13px ×138</span><span>12px ×78</span><span>11px ×47</span><span>9 weights loaded</span></div>
+        </div>
+        <figure class="shot"><img src="shots/landing_05.jpg" alt="Landing page cards set in Urbanist"><figcaption>Landing, mid-page — the same face at 11px caps and 52px display</figcaption></figure>
+      </article>
+
+      <article class="finding no-shot">
+        <div>
+          <h3>No scale — for radius, spacing, or buttons</h3>
+          <p>Twenty border radii between 1px and 60px. Six different primary buttons: navy pill (landing), blue pill (Creative OS "New"), indigo square (Settings), black square (Save), gold pill (Featured), lime pill (Apply). Two of them put #111 text on indigo and blue, which fails contrast. Nothing tells a member which action matters.</p>
+          <div class="ev"><span>20 radius values</span><span>radius 100px ×48 · 999px ×11 · 8px ×54 · 10px ×45</span><span>.set-btn-primary: #111 on #4f46e5</span><span>.vault-new-btn: #111 on #3b82f6</span></div>
+        </div>
+      </article>
+
+      <article class="finding">
+        <div>
+          <h3>Everything is a card</h3>
+          <p>White card, 1px border, 24px padding, 16px radius — on a white page. Hierarchy comes from boxes rather than type, so nothing leads. The profile is a card inside a card; the Home page is seven cards of equal weight, and the feed is one of them.</p>
+          <div class="ev"><span>.net-card / .prof-section / .vault-card / .ppl-card / .dm-* — same recipe</span></div>
+        </div>
+        <figure class="shot"><img src="shots/_profile_jessica_belkin_full.jpg" alt="Current profile page: nested cards"><figcaption>Profile — card in card, gray "Known For" tiles although the posters exist</figcaption></figure>
+      </article>
+
+      <article class="finding">
+        <div>
+          <h3>Islands</h3>
+          <p>People is a dark navy page with a constellation background — under a light gray sidebar. The landing is white with a dark hero. Settings is a light modal over 70% black. Each was designed on its own; nothing was designed as a set.</p>
+          <div class="ev"><span>.ppl-page background #1a2640</span><span>.net-sidebar background rgba(245,245,247)</span></div>
+        </div>
+        <figure class="shot"><img src="shots/_people.jpg" alt="Current People page: dark navy content next to a light sidebar"><figcaption>People — a dark room off a light hallway</figcaption></figure>
+      </article>
+
+      <article class="finding">
+        <div>
+          <h3>No app on a phone</h3>
+          <p>Below 768px the sidebar is <code>display: none</code> and nothing replaces it: a member on a phone has no way to reach Search, Projects, People or Messages. The Home top bar overflows to the right; the profile page scrolls sideways.</p>
+          <div class="ev"><span>global.css:4202 .net-sidebar { display:none }</span><span>no bottom nav, no menu</span></div>
+        </div>
+        <div class="shots-2">
+          <figure class="shot"><img src="shots/390__network.jpg" alt="Home on a phone: no navigation, top bar clipped"><figcaption>Home at 390px</figcaption></figure>
+          <figure class="shot"><img src="shots/390__profile.jpg" alt="Profile on a phone: text overflows the screen"><figcaption>Profile at 390px</figcaption></figure>
+        </div>
+      </article>
+
+      <article class="finding no-shot">
+        <div>
+          <h3>Placeholders show through</h3>
+          <p>Broken avatar images render their alt text ("Rob", "TJ O'D…"). Initials sit in flat indigo circles. "Known For" shows five empty gray tiles for a person whose posters are in the database. Analytics is a "Coming Soon" page in the main nav. Each one tells a member the product is unfinished, when it is the presentation that is.</p>
+        </div>
+      </article>
+
+      <article class="finding no-shot">
+        <div>
+          <h3>Style the stylesheet can't reach</h3>
+          <p>418 inline <code>style={{…}}</code> attributes across the components, so a token change in CSS misses them. Six <code>!important</code>. One <code>:focus-visible</code> rule in the whole app, no <code>prefers-reduced-motion</code>, and roughly 170 <code>transition: all</code>. The hover on nav icons is <code>scale(1.05)</code>.</p>
+          <div class="ev"><span>style={{ ×418</span><span>!important ×6</span><span>:focus-visible ×1</span><span>transition ×172</span></div>
+        </div>
+      </article>
+
+      <article class="finding">
+        <div>
+          <h3>The landing page is three landing pages</h3>
+          <p>The hero is the strongest thing in the product. Below it: a lime highlighter (#DEFF9B) that appears nowhere else, "Hollywood StudiosTM" with a literal TM, three sections of dark navy cards in three different styles, and scroll-reveal that leaves a section invisible if its observer never fires — which is exactly what a link preview or a screenshot sees.</p>
+          <div class="ev"><span>.phrase-highlight #DEFF9B</span><span>.cta-btn lime</span><span>.reveal { opacity: 0 }</span></div>
+        </div>
+        <figure class="shot"><img src="shots/landing_00.jpg" alt="Current landing hero"><figcaption>The hero — keep this</figcaption></figure>
+      </article>
+    </div>
+
+    <p class="note">What's working and should survive: the hero's night-lot photograph and its gold italic; the hover-expanding rail is a good instinct; the Creative OS project page's structure (title, badges, tabs, side panel); the featured-card and coverage layouts.</p>
+  </section>
+
+  <!-- ───────────────────────── 02 Direction ───────────────────────── -->
+  <section class="sec col" id="direction">
+    <div class="sec-head"><span class="n">02</span><h2>Call sheet, not dashboard</h2><p>The industry already has a visual language for serious paper: the call sheet, the coverage report, the one-sheet, the screenplay page. Quiet, dense, precise, with one thing that matters marked in gold. That is the register HSI should sit in.</p></div>
+    <div class="principles">
+      <div class="principle"><h3>One ink, one gold</h3><p>Navy is the working color — text, actions, links. Gold appears once per screen, for the thing that earned it: the featured cohort, a verified timestamp, the upgrade. Never for decoration.</p></div>
+      <div class="principle"><h3>Type does the hierarchy</h3><p>A display face for names and titles, a workhorse for everything else, the screenplay face for scripts. Boxes are for things — a person, a project — not for sections.</p></div>
+      <div class="principle"><h3>Two surfaces, one shadow</h3><p>Cool paper for the page, white for the surface, hairlines between. Shadow only on things that float: menus, modals, the phone tab bar.</p></div>
+      <div class="principle"><h3>The industry's own conventions</h3><p>Posters at 2:3. Credits as a block with years in a tabular column. Scripts in Courier. Coverage verdicts as PASS / CONSIDER / RECOMMEND. Timestamps as hashes, set in mono.</p></div>
+      <div class="principle"><h3>Same app on a phone</h3><p>The rail becomes a tab bar under 768px. Every page has a phone layout, checked, not assumed.</p></div>
+      <div class="principle"><h3>Light, with a dark option</h3><p>Reading scripts and long bios wants a light surface. Tokens are written so a dark theme is a switch, not a rewrite — this page is that switch working.</p></div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 03 System ───────────────────────── -->
+  <section class="sec col" id="system">
+    <div class="sec-head"><span class="n">03</span><h2>The system</h2><p>Small on purpose. Eight colors, four faces, three radii, one button family. Everything on this page is built from it.</p></div>
+    <div class="tok">
+      <div>
+        <h3>Color</h3>
+        <div class="palette">
+          <div class="sw"><i style="background:#0F1B33"></i><div><b>Ink</b><code>#0F1B33</code><small>Text. The logo's navy, deepened.</small></div></div>
+          <div class="sw"><i style="background:#26395F"></i><div><b>Navy</b><code>#26395F</code><small>Primary actions, links, active states.</small></div></div>
+          <div class="sw"><i style="background:#B8922E"></i><div><b>Gold</b><code>#B8922E</code><small>Once per screen. Featured, verified, upgrade.</small></div></div>
+          <div class="sw"><i style="background:#F5EDD6"></i><div><b>Gold pale</b><code>#F5EDD6</code><small>Gold's ground — chips, seals, the coverage verdict.</small></div></div>
+          <div class="sw"><i style="background:#F3F4F8"></i><div><b>Paper</b><code>#F3F4F8</code><small>The page. Cool, navy-tinted — not cream.</small></div></div>
+          <div class="sw"><i style="background:#FFFFFF;border-bottom:1px solid var(--hair)"></i><div><b>Surface</b><code>#FFFFFF</code><small>Cards, rail, top bar, inputs.</small></div></div>
+          <div class="sw"><i style="background:#5C6579"></i><div><b>Text 2</b><code>#5C6579</code><small>Secondary text, tinted toward navy.</small></div></div>
+          <div class="sw"><i style="background:linear-gradient(90deg,#1E7A4C 33%,#B45309 33% 66%,#B42318 66%)"></i><div><b>Semantic</b><code>good · warn · bad</code><small>Status only. Never the accent.</small></div></div>
+        </div>
+      </div>
+      <div>
+        <h3>Type</h3>
+        <div class="typerow"><span class="lbl">Display · Bricolage Grotesque 600</span><span class="t-display">Jessica Belkin</span></div>
+        <div class="typerow"><span class="lbl">Page title · 24/600</span><span class="t-h2">Creative OS</span></div>
+        <div class="typerow"><span class="lbl">Section · 18/600</span><span class="t-h3">Selected credits</span></div>
+        <div class="typerow"><span class="lbl">Body · Instrument Sans 15</span><span class="t-body">Jessica Belkin is an American actress who has worked in film and television since childhood.</span></div>
+        <div class="typerow"><span class="lbl">UI · 13.5/500</span><span class="t-ui">View profile · 52 credits · Los Angeles, CA</span></div>
+        <div class="typerow"><span class="lbl">Label · 11 caps</span><span class="t-label">Selected credits</span></div>
+        <div class="typerow"><span class="lbl">Script · Courier Prime</span><span class="t-script">INT. COFFEE SHOP — DAY
+
+A cozy corner booth. Rain streaks the window.</span></div>
+        <div class="typerow"><span class="lbl">Data · JetBrains Mono</span><span class="t-mono">sha256 a7f8e9d2c3b4a5f6 · 2026-03-10 14:02 PT</span></div>
+        <p class="muted" style="font-size:14px;margin-top:12px">Bricolage has the flare of a title card without being a serif — it keeps HSI in the same family as the logo's wordmark. Instrument Sans is neutral at 13px where Urbanist goes soft. Courier Prime is the screenplay standard, and the one face a screenwriter will recognize on sight. Sizes: 11 · 12.5 · 13.5 · 15 · 18 · 24 · 34 · 48, and nothing in between.</p>
+      </div>
+      <div>
+        <h3>Radius &amp; spacing</h3>
+        <div class="scale">
+          <div style="width:64px;height:40px;border-radius:6px">6 · sm</div>
+          <div style="width:80px;height:48px;border-radius:10px">10 · md</div>
+          <div style="width:110px;height:64px;border-radius:14px">14 · lg</div>
+          <div style="width:90px;height:32px;border-radius:999px">pill · chips</div>
+        </div>
+        <p class="muted" style="font-size:14px;margin-top:12px">Spacing on a 4px base: 4 · 8 · 12 · 16 · 20 · 24 · 28 · 36 · 48. Buttons and inputs are 36px tall everywhere; small variants 30px.</p>
+      </div>
+      <div>
+        <h3>Components</h3>
+        <div class="comp-sheet">
+          <div class="comp-row"><span class="lbl">buttons</span><div class="items"><button class="btn btn-primary">Save draft</button><button class="btn btn-secondary">New folder</button><button class="btn btn-ghost">Cancel</button><button class="btn btn-gold">Upgrade</button><button class="btn btn-secondary btn-sm">Connect</button><button class="btn btn-danger btn-sm">Delete</button></div></div>
+          <div class="comp-row"><span class="lbl">input</span><div class="items" style="max-width:360px;width:100%"><input class="input" id="demo-input" placeholder="Search people, titles, companies…"></div></div>
+          <div class="comp-row"><span class="lbl">chips</span><div class="items"><span class="chip">Acting</span><span class="chip">Television</span><span class="chip chip-gold">Featured</span><span class="chip chip-good">Verified</span><span class="chip chip-warn">Pending</span><span class="chip chip-bad">Declined</span></div></div>
+          <div class="comp-row"><span class="lbl">tabs</span><div class="items"><div class="tabs"><button class="tab on">Activity</button><button class="tab">Messages</button><button class="tab">Requests</button></div></div></div>
+          <div class="comp-row"><span class="lbl">seal</span><div class="items"><span class="seal"><i>✓</i> Timestamped · Mar 10, 2026</span><span class="seal"><i>★</i> Featured this week</span></div></div>
+          <div class="comp-row"><span class="lbl">avatar</span><div class="items"><img class="avatar" src="img/belkin.jpg" alt=""><span class="avatar ini">RW</span><span class="avatar ini">SS</span><span class="muted" style="font-size:13px">Initials in navy on tint, never a flat indigo disc; a broken image falls back to initials, never to alt text.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 04 Mockups ───────────────────────── -->
+  <section class="sec wide" id="mockups">
+    <div class="col"><div class="sec-head"><span class="n">04</span><h2>Four screens, re-set</h2><p>Rendered live from the tokens above, with the platform's real data — the seeded profiles, their posters, the feed. Nothing here needs a new API.</p></div></div>
+
+    <div class="mock">
+      <div class="mock-cap"><h3>Home</h3><p>The rail gains labels and a person; the feed becomes the page rather than one card among seven. Requests and the week's featured sit beside it, quieter.</p></div>
+      <div class="frame"><div class="frame-bar"><i></i><i></i><i></i><span>hsi.ai/network</span></div>
+      <div class="scaler"><div class="design">
+        <div class="app">
+          <aside class="app-rail">
+            <div class="logo"><img src="img/logo-sm.png" alt="">Hollywood Studios</div>
+            <nav class="app-nav">
+              <a class="on"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Projects</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>Creative OS<span class="cnt">3</span></a>
+              <a><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>People</a>
+              <a><svg viewBox="0 0 24 24"><path d="M21 14a2 2 0 0 1-2 2H8l-5 4V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages<span class="cnt">2</span></a>
+              <div class="grp">You</div>
+              <a><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+            </nav>
+            <div class="me"><span class="avatar ini">SS</span><div><b>Sir Steven Saxton</b><small>@steven-saxton</small></div></div>
+          </aside>
+          <div class="app-main">
+            <div class="app-top"><h1>Home</h1><div class="tabs"><button class="tab on">Activity</button><button class="tab">Messages</button></div><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" placeholder="Search members" readonly></div></div>
+            <div class="app-body home">
+              <div>
+                <div class="card composer"><div class="field">Share something with the network…</div><div class="acts"><button class="btn btn-ghost btn-sm">Photo</button><button class="btn btn-ghost btn-sm">Video</button><button class="btn btn-ghost btn-sm">Project link</button><button class="btn btn-primary btn-sm" style="margin-left:auto">Post</button></div></div>
+                <div class="card" style="margin-top:16px">
+                  <div class="post"><div class="row who"><img class="avatar" src="img/belkin.jpg" alt=""><span><b>Jessica Belkin</b><small>@jessica-belkin</small></span><span class="t">2h</span></div><p>First table read for the new season is on the books. Charlie Vale is back on the beach — and this time she's running it.</p><div class="link-card"><img src="img/baywatch.jpg" alt=""><div><b>Baywatch</b><small>TV · 2027 · Action, Adventure, Drama</small></div></div><div class="acts"><span>14 likes</span><span>3 replies</span><span>Share</span></div></div>
+                  <div class="post"><div class="row who"><span class="avatar ini">RW</span><span><b>Rob Webb</b><small>@gfrakkinbaltar</small></span><span class="t">4d</span></div><p>Howdy! Looking for a line producer with Georgia tax-credit experience for a Q1 shoot. Under $5M. DMs open.</p><div class="acts"><span>6 likes</span><span>Reply</span><span>Share</span></div></div>
+                  <div class="post"><div class="row who"><span class="avatar ini">TO</span><span><b>TJ O'Donnell</b><small>@thomas-o-donnell</small></span><span class="t">6d</span></div><p>Hey there — new coverage on the pilot is up in the Creative OS if anyone on the thread wants a look before Thursday.</p><div class="acts"><span>2 likes</span><span>Reply</span><span>Share</span></div></div>
+                </div>
+              </div>
+              <aside class="side">
+                <div class="card"><h4>Requests <span>2 pending</span></h4><div class="pl"><div class="row"><img class="avatar" src="img/treska.jpg" alt=""><div><b>Jessica Treska</b><small>Actress · Sharp Objects</small></div><button class="btn btn-secondary btn-sm">Accept</button></div><div class="row"><span class="avatar ini">MH</span><div><b>Maher Hasan</b><small>Producer · Los Angeles</small></div><button class="btn btn-secondary btn-sm">Accept</button></div></div></div>
+                <div class="card"><h4><span class="seal" style="margin-right:auto"><i>★</i> Featured this week</span></h4><div class="pl"><div class="row"><img class="avatar" src="img/belkin.jpg" alt=""><div><b>Jessica Belkin</b><small>Baywatch, Elle, AHS</small></div></div><div class="row"><img class="avatar" src="img/treska.jpg" alt=""><div><b>Jessica Treska</b><small>Sharp Objects, Hysteria!</small></div></div></div></div>
+                <div class="card"><h4>Network <span>48h</span></h4><div class="pl" style="font-size:13px"><div class="row"><span class="muted">New members</span><b style="margin-left:auto;font-family:var(--font-mono);font-weight:500">+12</b></div><div class="row"><span class="muted">Posts</span><b style="margin-left:auto;font-family:var(--font-mono);font-weight:500">31</b></div><div class="row"><span class="muted">Pages created</span><b style="margin-left:auto;font-family:var(--font-mono);font-weight:500">7</b></div></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap"><h3>People</h3><p>Light, like the rest of the app. The featured cohort is the one gold moment on the page; the directory below is dense and scannable, posters where the data has them.</p></div>
+      <div class="frame"><div class="frame-bar"><i></i><i></i><i></i><span>hsi.ai/people</span></div>
+      <div class="scaler"><div class="design">
+        <div class="app">
+          <aside class="app-rail">
+            <div class="logo"><img src="img/logo-sm.png" alt="">Hollywood Studios</div>
+            <nav class="app-nav">
+              <a><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Projects</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>Creative OS</a>
+              <a class="on"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>People</a>
+              <a><svg viewBox="0 0 24 24"><path d="M21 14a2 2 0 0 1-2 2H8l-5 4V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages</a>
+            </nav>
+            <div class="me"><span class="avatar ini">SS</span><div><b>Sir Steven Saxton</b><small>@steven-saxton</small></div></div>
+          </aside>
+          <div class="app-main">
+            <div class="app-top"><h1>People</h1><span class="faint" style="font-size:13px">1,214 members · 1,040 reference entries</span><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" placeholder="Name, skill or location" readonly></div></div>
+            <div class="app-body">
+              <div class="row" style="margin-bottom:12px"><span class="seal"><i>★</i> Featured this week</span><span class="faint" style="font-size:12.5px">Week of September 7</span></div>
+              <div class="featured">
+                <div class="card fcard"><img class="portrait" src="img/belkin.jpg" alt=""><div><div class="name">Jessica Belkin <span class="chip">Reference</span></div><div class="hl">Actress — Baywatch, Elle, American Horror Story</div><div class="row faint" style="font-size:12.5px;margin-top:4px">Los Angeles, CA · 52 credits</div><p class="bl">Broke through as Wren in American Horror Story: Hotel; now leads the Baywatch reboot as Charlie Vale.</p><div class="cr"><img src="img/elle.jpg" alt=""><img src="img/dutton.jpg" alt=""><img src="img/huntingwives.jpg" alt=""><img src="img/ahs.jpg" alt=""></div><div class="foot"><button class="btn btn-primary btn-sm">View profile</button><a class="faint" style="font-size:12.5px;text-decoration:none">IMDb ↗</a></div></div></div>
+                <div class="card fcard"><img class="portrait" src="img/treska.jpg" alt=""><div><div class="name">Jessica Treska <span class="chip">Reference</span></div><div class="hl">Actress — Sharp Objects, Hysteria!, Euphoria</div><div class="row faint" style="font-size:12.5px;margin-top:4px">California · 20 credits</div><p class="bl">Natalie Keene across six episodes of HBO's Sharp Objects; carried Judith Sanders through the full run of Hysteria!.</p><div class="cr"><img src="img/sharpobjects.jpg" alt=""><img src="img/huntingwives.jpg" alt=""><img src="img/ahs.jpg" alt=""></div><div class="foot"><button class="btn btn-primary btn-sm">View profile</button><a class="faint" style="font-size:12.5px;text-decoration:none">IMDb ↗</a></div></div></div>
+              </div>
+              <div class="row" style="margin:28px 0 12px"><span class="app-h2" style="font-size:18px">Directory</span><div class="filters" style="margin-left:auto"><span class="chip chip-gold">Members</span><span class="chip">Reference</span><span class="chip">Acting</span><span class="chip">Producing</span><span class="chip">Writing</span></div></div>
+              <div class="dir">
+                <div class="card pcard"><span class="avatar ini">SS</span><div><b>Sir Steven Saxton</b><small>Founder, Hollywood Studios · Los Angeles</small><div class="chips"><span class="chip">Producing</span><span class="chip">Executive</span></div></div></div>
+                <div class="card pcard"><span class="avatar ini">RW</span><div><b>Rob Webb</b><small>Writer-director · Atlanta</small><div class="chips"><span class="chip">Writing</span><span class="chip">Directing</span></div></div></div>
+                <div class="card pcard"><span class="avatar ini">TO</span><div><b>TJ O'Donnell</b><small>Development executive · New York</small><div class="chips"><span class="chip">Development</span></div></div></div>
+                <div class="card pcard"><img class="avatar" src="img/belkin.jpg" alt=""><div><b>Jessica Belkin</b><small>Actress · Los Angeles</small><div class="chips"><span class="chip">Acting</span><span class="chip">Television</span></div></div></div>
+                <div class="card pcard"><img class="avatar" src="img/treska.jpg" alt=""><div><b>Jessica Treska</b><small>Actress · California</small><div class="chips"><span class="chip">Acting</span><span class="chip">Film</span></div></div></div>
+                <div class="card pcard"><span class="avatar ini">MH</span><div><b>Maher Hasan</b><small>Producer · Los Angeles</small><div class="chips"><span class="chip">Producing</span><span class="chip">Technology</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap"><h3>Profile</h3><p>One header, not a card in a card. The posters the database already holds finally show. Credits read like a filmography: year in a tabular column, role under the title, episode counts in mono.</p></div>
+      <div class="frame"><div class="frame-bar"><i></i><i></i><i></i><span>hsi.ai/profile/jessica-belkin</span></div>
+      <div class="scaler"><div class="design">
+        <div class="app" style="grid-template-columns:1fr;min-height:0">
+          <div class="app-main">
+            <div class="app-top"><button class="btn btn-ghost btn-sm">← People</button><span class="faint" style="font-size:12.5px">Reference entry · compiled from IMDb</span><div class="search" style="width:auto;display:flex;gap:8px"><button class="btn btn-secondary btn-sm">Message</button><button class="btn btn-primary btn-sm">Connect</button></div></div>
+            <div class="app-body" style="padding:28px 40px">
+              <div class="prof-head">
+                <img class="portrait" src="img/belkin.jpg" alt="">
+                <div>
+                  <h1>Jessica Belkin <span class="chip">Reference</span></h1>
+                  <div class="hl">Actress — Baywatch, Elle, American Horror Story · Los Angeles, CA</div>
+                  <div class="row" style="margin-top:10px;gap:6px"><span class="chip">Acting</span><span class="chip">Television</span><span class="chip">Film</span></div>
+                  <div class="facts"><div><b>52</b><small>Credits</small></div><div><b>17</b><small>Years</small></div><div><b>2010–27</b><small>Active</small></div></div>
+                </div>
+                <div class="seal"><i>★</i> Featured this week</div>
+              </div>
+              <div class="prof-grid">
+                <div>
+                  <div class="app-lbl">Known for</div>
+                  <div class="known">
+                    <figure><img src="img/elle.jpg" alt=""><figcaption>Elle<small>Madison · 2026</small></figcaption></figure>
+                    <figure><img src="img/dutton.jpg" alt=""><figcaption>Dutton Ranch<small>Cassie · 2026</small></figcaption></figure>
+                    <figure><img src="img/huntingwives.jpg" alt=""><figcaption>The Hunting Wives<small>Young Margo · 2026</small></figcaption></figure>
+                    <figure><img src="img/ahs.jpg" alt=""><figcaption>American Horror Story<small>Wren · 7 episodes</small></figcaption></figure>
+                    <figure><img src="img/sharpobjects.jpg" alt=""><figcaption>Sharp Objects<small>with J. Treska · 2018</small></figcaption></figure>
+                  </div>
+                  <div class="prof-about" style="margin-top:28px"><div class="app-lbl">About</div><p>Jessica Belkin is an American actress who has worked in film and television since childhood. She broke through as Wren, the vampire daughter of Lady Gaga's Countess, across seven episodes of American Horror Story: Hotel, and built out a run of series work in Just Add Magic, Speechless, Pretty Little Liars and The Orville. She now leads the Baywatch reboot as Charlie Vale.</p></div>
+                </div>
+                <aside>
+                  <div class="row"><span class="app-lbl">Credits</span><span class="faint mono" style="margin-left:auto;font-size:11px">52</span></div>
+                  <div class="credits">
+                    <div class="cr"><span class="y">2027</span><span><b>Baywatch</b><small>Charlie Vale · TV</small></span><span class="ep">lead</span></div>
+                    <div class="cr"><span class="y">2026</span><span><b>Dutton Ranch</b><small>Cassie · TV</small></span><span class="ep">4 ep</span></div>
+                    <div class="cr"><span class="y">2026</span><span><b>Elle</b><small>Madison · TV</small></span><span class="ep">8 ep</span></div>
+                    <div class="cr"><span class="y">2025</span><span><b>The Hunting Wives</b><small>Young Margo · TV</small></span><span class="ep">2 ep</span></div>
+                    <div class="cr"><span class="y">2025</span><span><b>Singing in My Sleep</b><small>Charlotte · Film</small></span><span class="ep"></span></div>
+                    <div class="cr"><span class="y">2023</span><span><b>Last Straw</b><small>Nancy Osborn · Film</small></span><span class="ep"></span></div>
+                    <div class="cr"><span class="y">2022</span><span><b>Hunt Club</b><small>Lexi · Film</small></span><span class="ep"></span></div>
+                    <div class="cr"><span class="y">2015</span><span><b>American Horror Story</b><small>Wren · TV</small></span><span class="ep">7 ep</span></div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" style="margin-top:8px">All 52 credits</button>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap"><h3>Creative OS · project</h3><p>The script reads as a script. Coverage sits beside it in the industry's own form — a verdict, three scores, a paragraph — and the timestamp is a seal, set in gold because it is the thing this product promises.</p></div>
+      <div class="frame"><div class="frame-bar"><i></i><i></i><i></i><span>hsi.ai/vault/script/3fKjQGRn2ZPX</span></div>
+      <div class="scaler"><div class="design">
+        <div class="app" style="grid-template-columns:1fr;min-height:0">
+          <div class="app-main">
+            <div class="app-top"><button class="btn btn-ghost btn-sm">← Creative OS</button><div class="tabs"><button class="tab on">Script</button><button class="tab">Coverage</button><button class="tab">Sharing</button><button class="tab">Versions <span class="mono faint">v3</span></button></div><div class="search" style="width:auto;display:flex;gap:8px;align-items:center"><span class="faint" style="font-size:12px">Saved 2 min ago</span><button class="btn btn-secondary btn-sm">Share</button><button class="btn btn-primary btn-sm">Save</button></div></div>
+            <div class="app-body" style="padding:24px 40px">
+              <div class="row" style="align-items:flex-start;margin-bottom:18px"><div><div class="app-h2" style="font-size:26px">THE LAST STRAW</div><div class="row" style="gap:6px;margin-top:8px"><span class="chip">Feature</span><span class="chip">Horror · Thriller</span><span class="chip">Draft 3</span><span class="chip">98 pages</span></div></div><span class="seal" style="margin-left:auto"><i>✓</i> Timestamped · Mar 10, 2026</span></div>
+              <div class="cos">
+                <div class="card" style="position:relative"><span class="pgno">14.</span><div class="script">                        INT. DINER — NIGHT
+
+          The last booth. NANCY OSBORN (22) wipes a counter
+          that is already clean. Rain against the glass.
+
+          A bell. The door. Nobody comes in.
+
+                              NANCY
+                    We're closed.
+
+          Beat. The bell again — from the kitchen.
+
+                              NANCY (CONT'D)
+                         (quieter)
+                    We're closed.
+
+          She does not turn around.
+
+                                              CUT TO:</div></div>
+                <aside class="card cov">
+                  <div><div class="app-lbl">Coverage · HSI</div><div class="verdict" style="margin-top:8px"><span>Pass</span><span class="on">Consider</span><span>Recommend</span></div></div>
+                  <div class="meter"><span>Story</span><i><b style="--v:82%"></b></i><span>82</span></div>
+                  <div class="meter"><span>Character</span><i><b style="--v:74%"></b></i><span>74</span></div>
+                  <div class="meter"><span>Commercial</span><i><b style="--v:88%"></b></i><span>88</span></div>
+                  <p>A contained horror with a clean hook and a protagonist who does not yet want anything in Act 1. The diner sequence on p.14 is the script's best page; the reveal on p.61 arrives ten pages late. Comps: <i>Barbarian</i>, <i>Talk to Me</i>.</p>
+                  <div class="ts"><span class="app-lbl">Proof of ownership</span><span class="h">sha256 a7f8e9d2c3b4a5f6e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8</span><span class="faint" style="font-size:12px">Registered Mar 10, 2026 · 14:02 PT · Draft 3</span></div>
+                  <div class="row" style="gap:8px"><button class="btn btn-secondary btn-sm">Download certificate</button><button class="btn btn-ghost btn-sm">Verify</button></div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap"><h3>On a phone</h3><p>The rail becomes a tab bar. Same tokens, same components; the profile header simply stacks.</p></div>
+      <div class="phones">
+        <div class="phone"><div class="scaler"><div class="design">
+          <div class="ph">
+            <div class="ph-top"><h1>Home</h1><div class="tabs" style="margin-left:auto"><button class="tab on">Activity</button><button class="tab">Messages</button></div></div>
+            <div class="ph-body">
+              <div class="card composer"><div class="field">Share something…</div><div class="acts"><button class="btn btn-ghost btn-sm">Photo</button><button class="btn btn-primary btn-sm" style="margin-left:auto">Post</button></div></div>
+              <div class="card">
+                <div class="post"><div class="row who"><img class="avatar" src="img/belkin.jpg" alt=""><span><b>Jessica Belkin</b></span><span class="t">2h</span></div><p>First table read for the new season is on the books.</p><div class="link-card"><img src="img/baywatch.jpg" alt=""><div><b>Baywatch</b><small>TV · 2027</small></div></div><div class="acts"><span>14 likes</span><span>3 replies</span></div></div>
+                <div class="post"><div class="row who"><span class="avatar ini">RW</span><span><b>Rob Webb</b></span><span class="t">4d</span></div><p>Looking for a line producer with Georgia tax-credit experience for a Q1 shoot.</p><div class="acts"><span>6 likes</span><span>Reply</span></div></div>
+              </div>
+            </div>
+            <nav class="ph-tabs">
+              <a class="on"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>Creative</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>People</a>
+              <a><svg viewBox="0 0 24 24"><path d="M21 14a2 2 0 0 1-2 2H8l-5 4V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages</a>
+            </nav>
+          </div>
+        </div></div></div>
+        <div class="phone"><div class="scaler"><div class="design">
+          <div class="ph">
+            <div class="ph-top"><button class="btn btn-ghost btn-sm" style="margin-left:-8px">←</button><h1>Profile</h1><button class="btn btn-primary btn-sm" style="margin-left:auto">Connect</button></div>
+            <div class="ph-body">
+              <div class="prof-head"><img class="portrait" src="img/belkin.jpg" alt=""><div><h1>Jessica Belkin</h1><div class="hl" style="font-size:13px">Actress — Baywatch, Elle, AHS</div><div class="facts" style="margin-top:12px"><div><b>52</b><small>Credits</small></div><div><b>17</b><small>Years</small></div></div></div></div>
+              <div class="row" style="gap:6px"><span class="chip">Reference</span><span class="chip">Acting</span><span class="chip">Television</span></div>
+              <div><div class="app-lbl">Known for</div><div class="known"><figure><img src="img/elle.jpg" alt=""><figcaption>Elle<small>2026</small></figcaption></figure><figure><img src="img/dutton.jpg" alt=""><figcaption>Dutton Ranch<small>2026</small></figcaption></figure><figure><img src="img/ahs.jpg" alt=""><figcaption>AHS<small>7 ep</small></figcaption></figure></div></div>
+              <div><div class="app-lbl">Credits</div><div class="credits"><div class="cr"><span class="y">2027</span><span><b>Baywatch</b><small>Charlie Vale</small></span><span class="ep">lead</span></div><div class="cr"><span class="y">2026</span><span><b>Dutton Ranch</b><small>Cassie</small></span><span class="ep">4 ep</span></div><div class="cr"><span class="y">2026</span><span><b>Elle</b><small>Madison</small></span><span class="ep">8 ep</span></div></div></div>
+            </div>
+            <nav class="ph-tabs">
+              <a><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>Creative</a>
+              <a class="on"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>People</a>
+              <a><svg viewBox="0 0 24 24"><path d="M21 14a2 2 0 0 1-2 2H8l-5 4V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages</a>
+            </nav>
+          </div>
+        </div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 05 Page by page ───────────────────────── -->
+  <section class="sec col" id="pages">
+    <div class="sec-head"><span class="n">05</span><h2>Page by page</h2><p>Every route, what's wrong with it today, what changes. Behaviour, routes and data stay exactly as they are.</p></div>
+    <div class="tablewrap"><table class="pages">
+      <tr><th>Route</th><th>Today</th><th>Refresh</th></tr>
+      <tr><td>Shell</td><td>60px icon rail that expands on hover; hidden on phones with no replacement; light rail beside a dark People page.</td><td>224px rail with labels, counts and the signed-in person; collapses to icons under 1100px; tab bar under 768px. One surface color everywhere.</td></tr>
+      <tr><td>/network</td><td>Seven equal cards; indigo tabs; broken avatar images show alt text; "48h Activity" card is empty.</td><td>Feed is the page. Composer and posts share one surface; requests and featured beside it; numbers in mono. Initials fallback for every avatar.</td></tr>
+      <tr><td>/people</td><td>Dark navy island with constellation canvas; 44px avatars; pill-button "Connect" full width.</td><td>Light. Featured cohort with 3:4 portraits and poster strip; directory as dense three-up cards; filter chips. Reference badge as a quiet chip.</td></tr>
+      <tr><td>/profile/:handle</td><td>Card inside card; 140px square avatar; "Known For" empty gray tiles; credits list without posters; Wikidata attribution shown on IMDb-sourced entries.</td><td>Open header with 3:4 portrait, display-face name, three facts. Known For uses the posters that exist. Credits as a filmography block. Attribution reads from the profile's actual source.</td></tr>
+      <tr><td>/projects · /movie · /tvshow · /company · /music</td><td>Poster at 180px; genre chips twice (header and sidebar); indigo "TV SHOW" badge; cast rows with indigo initials.</td><td>One-sheet at 2:3 beside a display-face title; details once; cast &amp; crew as a credits block with real headshots.</td></tr>
+      <tr><td>/vault</td><td>"Creative OS" title with blue "+ New"; 16:9 gray thumbnails; pill tabs.</td><td>Project cards with the script's first page rendered in Courier as the thumbnail; version and timestamp seal on the card; tabs as the segmented control.</td></tr>
+      <tr><td>/vault/script · /vault/workspace</td><td>Good structure, black square Save, indigo focus rings, badges in five styles; analysis header with gold gradient text.</td><td>Keep the structure. Script in Courier Prime on a page-shaped surface; coverage as verdict + meters + prose; timestamp as a gold seal; one button family.</td></tr>
+      <tr><td>Analysis · Tracking · Share view</td><td>Three sub-systems with their own colors (gold gradient, indigo, greens), stat tiles, big-number rows.</td><td>Re-set on the same tokens: navy meters, semantic colors only for status, mono for hashes and counts. Share view is the same page at guest width.</td></tr>
+      <tr><td>/messages</td><td>360px list, navy bubbles, empty state with two different CTAs.</td><td>Keep the layout; bubbles in surface-2 and navy; one empty state with one action; attachment cards match the feed's link card.</td></tr>
+      <tr><td>Settings</td><td>Modal over 70% black; indigo primary with #111 text; sidebar in 16px.</td><td>Same modal, on tokens; navy primary; 13.5px nav; the Upgrade page is where the gold button lives.</td></tr>
+      <tr><td>/login · /apply</td><td>Centered, fine; Google button and email field in different radii; apply page runs long with no progress.</td><td>Same layout on tokens; a 4-step progress line on the application; the wordmark logo, not the square one.</td></tr>
+      <tr><td>/ (landing)</td><td>Strong hero; below it three different systems, lime highlighter, scroll-reveal that can hide sections.</td><td>Keep the hero. Re-set the rest as one long page in the app's own type; drop the lime; sections visible at rest, animated only from a visible state. Last in order — it's the least used surface by members.</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ───────────────────────── 06 Plan ───────────────────────── -->
+  <section class="sec col" id="plan">
+    <div class="sec-head"><span class="n">06</span><h2>How to ship it</h2><p>Foundation first, then one surface at a time, each on its own branch and each screenshot-checked at 1440 and 390 before it merges. Nothing changes what a page does.</p></div>
+    <div class="plan">
+      <div class="phase"><div class="k">Phase 1<small>≈ 2 days</small></div><div><h3>Foundation</h3><p>Tokens, fonts, and the primitives every page uses — without touching page layouts yet. The app looks 40% better on this phase alone because buttons, inputs, chips and the rail are on every screen.</p><ul><li>Replace <code>:root</code> with the token set; load Bricolage Grotesque, Instrument Sans, Courier Prime, JetBrains Mono; retire Urbanist.</li><li>One button family (<code>.btn</code> + variants) replacing the six; one input, chip, tab, seal, avatar.</li><li>Rail with labels and the signed-in person; tab bar under 768px.</li><li>Split <code>global.css</code> into <code>tokens.css</code>, <code>primitives.css</code>, <code>shell.css</code> and one file per surface — same cascade, findable.</li></ul><div class="files"><code>src/styles/</code><code>index.html</code><code>AppSidebar.tsx</code><code>AppLayout.tsx</code></div></div></div>
+      <div class="phase"><div class="k">Phase 2<small>≈ 3 days</small></div><div><h3>Network</h3><p>The surfaces members see first: Home, People, Profile, Projects and the entity pages. Inline styles move into classes as each file is touched.</p><ul><li>Home feed as the page; requests and featured in the side column.</li><li>People to light; featured card and directory on the new components.</li><li>Profile header, Known For with posters, filmography credits; entity page one-sheet and cast block.</li></ul><div class="files"><code>NetworkPage.tsx</code><code>PeoplePage.tsx</code><code>FeaturedProfiles.tsx</code><code>ProfilePage.tsx</code><code>profile/*</code><code>EntityPage.tsx</code><code>entity/*</code><code>ProjectsPage.tsx</code></div></div></div>
+      <div class="phase"><div class="k">Phase 3<small>≈ 4 days</small></div><div><h3>Creative OS</h3><p>The product's reason to exist, and its biggest files. Script and workspace pages, analysis, tracking, the shared view.</p><ul><li>Project grid with Courier first-page thumbnails and the timestamp seal.</li><li>Script page surface; coverage panel as verdict, meters, prose; timestamps and hashes in mono.</li><li>Tracking and share view re-set on the same tokens; guest view is the member view at guest width.</li></ul><div class="files"><code>VaultPage.tsx</code><code>VaultItemPages.tsx</code><code>VaultAnalysisPanel.tsx</code><code>VaultTrackingPanel.tsx</code><code>SharedViewPage.tsx</code><code>DraftAssistantPanel.tsx</code></div></div></div>
+      <div class="phase"><div class="k">Phase 4<small>≈ 2 days</small></div><div><h3>Messages, Settings, Login, Apply</h3><p>Mostly a re-skin: layouts hold, tokens and primitives replace local styles, one empty state per surface.</p><div class="files"><code>MessagesPage.tsx</code><code>SettingsPage.tsx</code><code>settings/*</code><code>LoginPage.tsx</code><code>ApplicationPage.tsx</code></div></div></div>
+      <div class="phase"><div class="k">Phase 5<small>≈ 2 days</small></div><div><h3>Landing</h3><p>Keep the hero and the photograph. Re-set everything under it in the app's type, on one set of section styles, visible at rest.</p><div class="files"><code>HeroSection.tsx</code><code>BrainSection.tsx</code><code>AnalysisSection.tsx</code><code>PersonaSection.tsx</code><code>StatsSection.tsx</code><code>CreatorsSection.tsx</code><code>UpdatesSection.tsx</code><code>CTASection.tsx</code></div></div></div>
+    </div>
+    <div class="prose">
+      <h3>Rules for the whole run</h3>
+      <ul>
+        <li><b>No functionality change.</b> Routes, API calls, state and copy stay; only markup classes and CSS move. Where a component's structure has to change for layout (the profile header, the rail), the props and handlers don't.</li>
+        <li><b>Inline styles retire as files are touched</b>, not in a separate sweep — 418 is too many to do blind, and each one is obvious in context.</li>
+        <li><b>Every phase ends with screenshots</b> at 1440 and 390 of every route it touched, checked against the mockups here, before it merges. The headless-Chrome script from this audit does that in one command.</li>
+        <li><b>Accessibility comes with the primitives:</b> a visible focus ring, <code>prefers-reduced-motion</code>, 4.5:1 on all text, and no <code>transition: all</code>.</li>
+        <li><b>Dark theme is a token swap</b> and ships when Phase 4 is done, behind the existing Settings page.</li>
+      </ul>
+      <p class="note">Three small things surfaced by the audit that are bugs rather than design, and worth fixing on the way: broken avatar images should fall back to initials; IMDb-sourced profiles show a Wikidata attribution line; Known For never renders the posters that seeded titles have.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 07 Decisions ───────────────────────── -->
+  <section class="sec col" id="decisions">
+    <div class="sec-head"><span class="n">07</span><h2>Your calls</h2><p>Four things I'd rather you decide than assume. Each has a recommendation; none blocks Phase 1 except the first.</p></div>
+    <div class="decisions">
+      <div class="dec"><h3>Typeface</h3><p>Bricolage Grotesque + Instrument Sans as proposed, or keep Urbanist and change everything else. Keeping Urbanist keeps most of the "template" feeling; it is the single biggest tell.</p><span class="rec">Recommend: change the faces.</span></div>
+      <div class="dec"><h3>People page</h3><p>Light like the rest of the app (as mocked), or keep it as the one dark room. Dark works for a marquee moment; it costs consistency, and the constellation canvas will fight the portraits.</p><span class="rec">Recommend: light.</span></div>
+      <div class="dec"><h3>Dark theme</h3><p>Light only, or light with a dark toggle. The tokens make dark cheap; the question is whether to test and maintain two.</p><span class="rec">Recommend: light first, dark after Phase 4.</span></div>
+      <div class="dec"><h3>Landing page</h3><p>Part of this run (Phase 5), or a separate marketing project later. It shares the type and tokens either way.</p><span class="rec">Recommend: last in this run — keep the hero, re-set the rest.</span></div>
+    </div>
+    <div class="foot">Prepared from the <code>seed-1000-actors</code> branch at <code>5ed7524</code>. Screenshots are the current app at 1440 and 390px, taken without a session where the page allowed it. Portraits and posters are the platform's own seeded data, shown here at the sizes the app now stores.</div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // Mockups are drawn at a fixed design width and scaled to fit the reader's viewport.
+  function fit() {
+    document.querySelectorAll('.scaler').forEach(function (s) {
+      var d = s.firstElementChild, w = d.offsetWidth, avail = s.clientWidth;
+      var k = Math.min(1, avail / w);
+      d.style.transform = 'scale(' + k + ')';
+      s.style.height = (d.offsetHeight * k) + 'px';
+    });
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit();
+})();
+</script>
+</body></html>

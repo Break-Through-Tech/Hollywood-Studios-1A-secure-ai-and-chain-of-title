@@ -1,0 +1,97 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Design tokens. Everything else reads from here.
+
+   Two surfaces (paper, surface), one ink, one gold. Gold is for the thing
+   that earned it — featured, verified, upgrade — never for decoration.
+   Semantic colors (good / warn / bad) are for status only.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* palette */
+  --ink: #0F1B33;
+  --navy: #26395F;
+  --navy-deep: #1B2A4A;
+  --gold: #8A6912;          /* gold as text: AA on paper, surface and gold-pale */
+  --gold-fill: #B8922E;     /* gold as a fill or border */
+  --gold-bright: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-pale: #F5EDD6;
+  --paper: #F3F4F8;
+  --surface: #FFFFFF;
+  --surface-2: #F8F9FB;
+  --surface-3: #EEF0F5;
+
+  /* text */
+  --text: #0F1B33;
+  --text-2: #5C6579;
+  --text-3: #66708A;
+  --text-on-navy: #FFFFFF;
+  --link: #26395F;
+
+  /* lines & depth */
+  --hair: rgba(15,27,51,0.10);
+  --hair-2: rgba(15,27,51,0.06);
+  --hair-strong: rgba(15,27,51,0.22);
+  --navy-tint: rgba(38,57,95,0.08);
+  --navy-tint-2: rgba(38,57,95,0.14);
+  --gold-tint: rgba(184,146,46,0.14);
+  --shadow-float: 0 1px 2px rgba(15,27,51,0.06), 0 8px 24px rgba(15,27,51,0.10);
+  --shadow-modal: 0 24px 80px rgba(15,27,51,0.22);
+  --focus: 0 0 0 3px rgba(38,57,95,0.18);
+
+  /* status */
+  --good: #1E7A4C; --good-bg: #E6F4EC;
+  --warn: #A34A05; --warn-bg: #FBEEDC;
+  --bad:  #B42318; --bad-bg:  #FBE7E4;
+
+  /* type */
+  --font-display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-script: 'Courier Prime', 'Courier New', Courier, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* shape */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* controls */
+  --control-h: 36px;
+  --control-h-sm: 30px;
+
+  /* ── legacy aliases: the older stylesheets read these names ── */
+  --bg: var(--paper);
+  --bg-card: var(--surface);
+  --bg-elevated: var(--surface-3);
+  --text-dim: var(--text-2);
+  --text-muted: var(--text-3);
+  --border: var(--hair);
+  --border-gold: var(--gold-tint);
+  --green: var(--good);
+  --font-body: var(--font-ui);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+a { color: var(--link); }
+button, input, select, textarea { font-family: inherit; }
+img { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+/* Text fields show focus with their own ring, not the gold outline. */
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}

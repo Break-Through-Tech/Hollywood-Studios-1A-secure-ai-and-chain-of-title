@@ -1,0 +1,589 @@
+/* ── Vault analysis pipeline ── */
+@keyframes analysisPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.5 } }
+@keyframes analysisBarGrow { from { width: 0 } }
+@keyframes analysisGlow { 0%,100% { box-shadow: 0 0 20px rgba(184,146,46,0.1) } 50% { box-shadow: 0 0 40px rgba(184,146,46,0.25) } }
+@keyframes analysisFadeIn { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
+
+.vault-analysis-section {
+  margin-top: 48px;
+  padding: 0;
+  animation: analysisFadeIn 0.5s ease;
+}
+
+.vault-analysis-header {
+  text-align: left;
+  margin-bottom: 24px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--hair);
+}
+.vault-analysis-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.vault-analysis-title-gold { color: var(--gold); }
+.vault-analysis-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.vault-analysis-genre-badge {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+  border-radius: var(--r-pill); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--surface-2); color: var(--text-2); border: 1px solid var(--hair-2);
+}
+.vault-analysis-crg {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.vault-analysis-subtitle {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin-bottom: 20px;
+  max-width: 68ch;
+}
+.vault-analysis-meta {
+  color: var(--text-3);
+}
+
+.vault-analysis-steps {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+}
+.vault-analysis-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.2s;
+}
+.vault-analysis-step--locked { opacity: 0.4; }
+
+.vault-analysis-step-line {
+  display: flex;
+  align-items: center;
+  width: 48px;
+  height: 2px;
+  background: var(--hair);
+  border-radius: 1px;
+  overflow: hidden;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+.vault-analysis-step-line-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+.vault-analysis-step-line-fill--completed { width: 100%; background: var(--green); }
+.vault-analysis-step-line-fill--running { width: 50%; background: var(--gold-bright); }
+.vault-analysis-step-line-fill--ready { width: 100%; background: var(--gold); opacity: 0.4; }
+
+.vault-analysis-step-num {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface);
+  flex-shrink: 0;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s, opacity 0.25s, box-shadow 0.25s, transform 0.25s;
+}
+.vault-analysis-step-num--ready {
+  border-color: var(--gold-fill);
+  color: var(--gold);
+  background: rgba(184,146,46,0.06);
+}
+.vault-analysis-step-num--running {
+  border-color: var(--gold-bright);
+  color: #fff;
+  background: var(--gold);
+  animation: analysisGlow 2s ease-in-out infinite;
+}
+.vault-analysis-step-num--completed {
+  border-color: var(--green);
+  color: #fff;
+  background: var(--green);
+}
+.vault-analysis-step-num--failed {
+  border-color: var(--bad);
+  color: #fff;
+  background: var(--bad);
+}
+
+.vault-analysis-step-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.2;
+}
+.vault-analysis-step-text strong {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.vault-analysis-step-text em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vault-analysis-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vault-analysis-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  box-shadow: var(--shadow-float);
+}
+.vault-analysis-card--locked {
+  opacity: 0.45;
+  border-style: dashed;
+  border-color: var(--hair);
+}
+.vault-analysis-card--ready {
+  border-color: rgba(184,146,46,0.25);
+  box-shadow: 0 2px 12px rgba(184,146,46,0.06);
+}
+.vault-analysis-card--ready:hover {
+  border-color: var(--border-gold);
+  box-shadow: 0 4px 24px rgba(184,146,46,0.1);
+  transform: translateY(-1px);
+}
+.vault-analysis-card--running {
+  border-color: var(--gold-bright);
+  box-shadow: 0 4px 30px rgba(184,146,46,0.12);
+  animation: analysisGlow 3s ease-in-out infinite;
+}
+.vault-analysis-card--completed {
+  border-color: rgba(30,122,76,0.2);
+  box-shadow: 0 2px 12px rgba(30,122,76,0.06);
+}
+.vault-analysis-card--failed {
+  border-color: rgba(180,35,24,0.25);
+  box-shadow: 0 2px 12px rgba(180,35,24,0.06);
+}
+
+.vault-analysis-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 28px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.vault-analysis-card-header:hover { background: var(--surface-2); }
+
+.vault-analysis-card-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s, opacity 0.25s, box-shadow 0.25s, transform 0.25s;
+}
+.vault-analysis-card-icon--ready { color: var(--gold); border-color: rgba(184,146,46,0.2); background: rgba(184,146,46,0.04); }
+.vault-analysis-card-icon--running { color: var(--gold-bright); border-color: rgba(184,146,46,0.3); background: rgba(184,146,46,0.08); }
+.vault-analysis-card-icon--completed { color: var(--green); border-color: rgba(30,122,76,0.2); background: rgba(30,122,76,0.05); }
+.vault-analysis-card-icon--failed { color: var(--bad); border-color: rgba(180,35,24,0.2); background: rgba(180,35,24,0.05); }
+
+.vault-analysis-card-title {
+  flex: 1;
+  min-width: 0;
+}
+.vault-analysis-card-title h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.vault-analysis-tagline {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: block;
+}
+
+.vault-analysis-card-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.vault-analysis-lock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.vault-analysis-run-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s, opacity 0.25s, box-shadow 0.25s, transform 0.25s;
+  letter-spacing: 0.01em;
+}
+.vault-analysis-run-btn:hover {
+  background: #1e2b45;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(41,55,88,0.25);
+}
+.vault-analysis-run-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.vault-analysis-running {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.vault-analysis-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(184,146,46,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.vault-analysis-score {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vault-analysis-score-ring {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid;
+  background: var(--surface);
+}
+.vault-analysis-score-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+.vault-analysis-score-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vault-analysis-error-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bad);
+  padding: 5px 14px;
+  border: 1px solid rgba(180,35,24,0.2);
+  border-radius: var(--r-pill);
+  background: rgba(180,35,24,0.05);
+}
+
+.vault-analysis-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+.vault-analysis-chevron--open { transform: rotate(180deg); }
+
+.vault-analysis-card-body {
+  padding: 4px 28px 28px;
+  animation: analysisFadeIn 0.3s ease;
+}
+
+.vault-analysis-lock-msg {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-weight: 300;
+  padding: 8px 0;
+}
+
+.vault-analysis-error-msg {
+  font-size: 14px;
+  color: var(--bad);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.vault-analysis-dimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vault-analysis-dim {
+  border-radius: var(--r-md);
+  transition: background 0.2s;
+}
+.vault-analysis-dim:hover { background: var(--surface-2); }
+.vault-analysis-dim--open { background: var(--bg-card); }
+
+.vault-analysis-dim-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.vault-analysis-dim-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 160px;
+  flex-shrink: 0;
+}
+.vault-analysis-dim-bar-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+}
+.vault-analysis-dim-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.vault-analysis-dim-bar {
+  height: 100%;
+  border-radius: var(--r-sm);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: analysisBarGrow 0.6s ease;
+}
+.vault-analysis-dim-score {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  min-width: 28px;
+  text-align: right;
+}
+.vault-analysis-dim-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+.vault-analysis-dim-chevron--open { transform: rotate(180deg); }
+
+.vault-analysis-dim-details {
+  padding: 2px 14px 16px;
+  animation: analysisFadeIn 0.3s ease;
+}
+.vault-analysis-dim-summary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.vault-analysis-dim-full {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-weight: 300;
+}
+
+.vault-analysis-progress {
+  margin-bottom: 22px;
+}
+.vault-analysis-progress-track {
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.vault-analysis-progress-bar {
+  height: 100%;
+  background: var(--navy);
+  border-radius: var(--r-sm);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.vault-analysis-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.vault-analysis-progress-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.vault-analysis-progress-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  animation: analysisPulse 1.8s ease-in-out infinite;
+}
+
+.vault-analysis-actions {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+}
+.vault-analysis-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.vault-analysis-reset-btn:hover { background: var(--bg-card); border-color: var(--hair-strong); }
+
+/* Pre-analysis progress */
+.vault-preanalysis {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+.vault-preanalysis-phase {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vault-preanalysis-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-2);
+  transition: color 0.3s;
+}
+.vault-preanalysis-step--active {
+  color: var(--gold);
+  font-weight: 500;
+}
+.vault-preanalysis-step--done {
+  color: var(--good);
+}
+.vault-preanalysis-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+.vault-preanalysis-step-label {
+  font-size: 14px;
+}
+.vault-preanalysis-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 2px solid var(--hair);
+  margin-left: 10px;
+}
+.vault-preanalysis-act {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-3);
+  padding: 4px 0;
+  transition: color 0.3s;
+}
+.vault-preanalysis-act--active {
+  color: var(--gold);
+  font-weight: 500;
+}
+.vault-preanalysis-act--done {
+  color: var(--good);
+}
+.vault-preanalysis-act-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+.vault-preanalysis-act-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hair-strong);
+}
+.vault-preanalysis-act-label {
+  font-size: 13px;
+}
+.vault-analysis-spinner--sm {
+  width: 14px;
+  height: 14px;
+  border-width: 1.5px;
+}
