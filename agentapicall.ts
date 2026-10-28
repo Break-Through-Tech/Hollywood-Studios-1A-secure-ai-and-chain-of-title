@@ -56,7 +56,9 @@ function isBlockedUrl(value: string): boolean {
     return true;
   }
 }
-# TODO: Set up API call to AI agent for web query
+
+
+
 // TODO: Give agents descriptions for their tools
 
 // websearch tool
@@ -97,36 +99,8 @@ const readpage = tool({
     return { url, content: (page.markdown ?? "").slice(0, 12000) };
   },
 });
-# TODO: Provide prompt instructions to AI agent for web query
-// TODO: write instruction prompt to LLM
-const LLM_prompt = ["", ""].join("\n")
 
-
-// setting up call to LLM
-
-export async function GET() {
-  const { object } = await generateObject({
-    model: 'fill_in_later',
-    tools: {
-      // insert tool names
-    }
-    schema: z.object({
-      name: z.string(),
-      age: z.number(),
-      location: z.string(),
-      occupation: z.string(),
-      credits: z.string(),
-      //fill in necessary profile information we want that matches schema_db
-    }),
-    prompt: {LLM_prompt}',
-  });
-
-  return Response.json(object);
-}
-# TODO: Check JSON formatting
-
-import { z } from 'zod';
-
+// TODO: Checking valid JSON formatting
 const CareerFindingsSchema = z.object({
   personName: z.string().min(1),
   findings: z.array(
@@ -165,4 +139,34 @@ function validateFindingsJson(
 
   return { ok: true, data: result.data };
 }
+
+
+// TODO: write instruction prompt to LLM
+const LLM_prompt = ["", ""].join("\n")
+
+
+// TODO: setting up call to LLM
+
+export async function GET() {
+  const { object } = await generateObject({
+    model: 'fill_in_later',
+    tools: {
+      // insert tool names
+    }
+    schema: z.object({
+      name: z.string(),
+      age: z.number(),
+      location: z.string(),
+      occupation: z.string(),
+      credits: z.string(),
+      //fill in necessary profile information we want that matches schema_db
+    }),
+    prompt: {LLM_prompt}',
+  });
+
+  return Response.json(object);
+}
+
+
+
 
