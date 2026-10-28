@@ -12,11 +12,12 @@
 
 Limitations:
 - Firecrawl has credit limits separate from credit limits accrued from calling the LLM, so may need to replace
-  Firecrawl with a different tool if anticipated use of credits goes above allotted credits for free tier`
+  Firecrawl with a different tool if anticipated use of credits goes above allotted credits for free tier
 
 Next steps:
+- finish script and test
 - figure out what to do with outputs --> likely want to ask user about autofilling and give options
-- figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)
+- figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
 
 const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) // where the api key would go; could hide with dotenv
 /*
