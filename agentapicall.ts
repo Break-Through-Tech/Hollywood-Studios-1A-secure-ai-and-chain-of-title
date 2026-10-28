@@ -1,6 +1,22 @@
 // const greeting: string = "Hello from TypeScript in Colab!";
 // console.log(greeting);
 
+`General:
+1. Use firecrawl to convert webpages to a scrapable format
+2. Use Vercel AI sdk to scrape information from webpages about person
+3. Define tools for the AI agent to use to not waste credits (split up url gathering and reading page)
+4. Define a function to limit search to certain URLs; use function within tools
+5. Define information that we want the LLM to identify according to the schema DB
+6. Prompt LLM to output desired data using tools
+7. LLM outputs findings in JSON readable format
+
+Limitations:
+- Firecrawl has credit limits separate from credit limits accrued from calling the LLM, so may need to replace
+  Firecrawl with a different tool if anticipated use of credits goes above allotted credits for free tier`
+
+Next steps:
+- figure out what to do with outputs --> likely want to ask user about autofilling and give options
+- figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)
 
 const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) // where the api key would go; could hide with dotenv
 /*
