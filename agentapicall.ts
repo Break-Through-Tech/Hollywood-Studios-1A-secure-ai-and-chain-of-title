@@ -72,7 +72,7 @@ const get_webpages = tool({
     if (searchCalls >= 1) return { error: "Search limit reached." };
     searchCalls += 1;
     const result = await firecrawl.search(
-      `"${name}" ${hint} career site:en.wikipedia.org`,
+      `"${name}" ${hint} career site:en.wikipedia.org`, // change to block list or allowed list later
       { limit: 5 }
     );
     const pages = (result.web ?? [])
