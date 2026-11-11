@@ -33,7 +33,7 @@ import { z } from 'zod'; // allows ai agent to export structured generateText
 const blockedDomains = ['imdb.com', 'linkedin.com']; // fill in all blocked urls (ex. imdb, linkedin)
 
 // TODO: write function that checks links from the websearch tool and returns False if they're in the blocked list
-function isBlockedUrl(value: string): boolean {
+function isAllowedUrl(value: string, domain_list: string[]): boolean {
   try {
     const url = new URL(value);
 
@@ -44,7 +44,7 @@ function isBlockedUrl(value: string): boolean {
 
     const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
 
-    return blockedDomains.some((domain) => {
+    return domain_list.some((domain) => {
       const normalizedDomain = domain.toLowerCase().replace(/\.$/, '');
       return (
         hostname === normalizedDomain ||
@@ -56,8 +56,6 @@ function isBlockedUrl(value: string): boolean {
     return true;
   }
 }
-
-
 
 // TODO: Give agents descriptions for their tools
 
@@ -72,11 +70,11 @@ const get_webpages = tool({
     if (searchCalls >= 1) return { error: "Search limit reached." };
     searchCalls += 1;
     const result = await firecrawl.search(
-      `"${name}" ${hint} career site:en.wikipedia.org`, // change to block list or allowed list later
+      `"${name}" ${hint} career `, // removed "site:en.wikipedia.org" for generality
       { limit: 5 }
     );
     const pages = (result.web ?? [])
-      .filter(page => isApprovedUrl(page.url)) // maybe change: don't condition on approved urls but instead blocked urls (ex. blog pages are fair game)
+      .filter(page => isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
       .slice(0, 5)
       .map(page => ({ url: page.url, title: page.title ?? "" }));
     for (const page of pages) discoveredUrls.add(page.url);
@@ -90,7 +88,7 @@ const readpage = tool({
   description: "Read one of the approved links returned by get_webpages. Maximum three pages.",
   inputSchema: z.object({ url: z.string().url() }),
   execute: async ({ url }) => {
-    if (!isApprovedUrl(url) || !discoveredUrls.has(url)) {
+    if (!isAllowedUrl(url, blockedDomains) || !discoveredUrls.has(url)) {
       return { error: "URL not allowed or not found by the search tool." };
     }
     if (pageReads >= 3) return { error: "Page reading limit reached." };
@@ -100,48 +98,7 @@ const readpage = tool({
   },
 });
 
-// TODO: Checking valid JSON formatting
-const CareerFindingsSchema = z.object({
-  personName: z.string().min(1),
-  findings: z.array(
-    z.object({
-      field: z.string().min(1),
-      value: z.string().min(1),
-      sourceUrl: z.string().url(),
-    }).strict(),
-  ),
-}).strict();
-
-type CareerFindings = z.infer<typeof CareerFindingsSchema>;
-
-function validateFindingsJson(
-  raw: string,
-):
-  | { ok: true; data: CareerFindings }
-  | { ok: false; error: string } {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return { ok: false, error: 'Output is not valid JSON.' };
-  }
-
-  const result = CareerFindingsSchema.safeParse(parsed);
-
-  if (!result.success) {
-    const details = result.error.issues
-      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-      .join('; ');
-
-    return { ok: false, error: `JSON has the wrong format: ${details}` };
-  }
-
-  return { ok: true, data: result.data };
-}
-
-
-// TODO: write instruction prompt to LLM
+// Instruction prompt for the LLM
 
 const LLM_prompt = `
 You are a research assistant responsible for collecting accurate,
@@ -222,28 +179,33 @@ Return an empty findings array if no reliable information is available.
 Do not include explanatory text or Markdown outside the JSON object.
 `;
 
-
-// TODO: setting up call to LLM
+// Call to LLM; exportable function to other files
 
 export async function GET() {
-  const { object } = await generateObject({
-    model: 'fill_in_later',
-    tools: {
-      // insert tool names
-    }
-    schema: z.object({
-      name: z.string(),
-      age: z.number(),
-      location: z.string(),
-      occupation: z.string(),
-      credits: z.string(),
-      //fill in necessary profile information we want that matches schema_db
-    }),
-    prompt: {LLM_prompt}',
+  const { output } = await generateText({
+  model: "anthropic/claude-haiku-5.5",
+  output: Output.object(
+  z.object({
+  personName: z.string().min(1),
+  findings: z.array(
+    z.object({
+      field: z.string().min(1),
+      value: z.string().min(1),
+      sourceUrl: z.string().url(),
+    }).strict(),
+    z.object({
+      field: z.string().min(1),
+      value: z.string().min(1),
+      sourceUrl: z.string().url(),
+    }).strict()
+  ),
+}).strict()),
+  prompt: LLM_prompt,
   });
 
-  return Response.json(object);
+  return Response.json(output);
 }
+
 
 
 
