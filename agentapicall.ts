@@ -42,12 +42,12 @@ function isAllowedUrl(value: string, domain_list: string[]): boolean {
 
     // Reject malformed URLs and non-web protocols.
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      return true;
+      return false;
     }
 
     const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
 
-    return domain_list.some((domain) => {
+    return !domain_list.some((domain) => {
       const normalizedDomain = domain.toLowerCase().replace(/\.$/, '');
       return (
         hostname === normalizedDomain ||
@@ -56,7 +56,7 @@ function isAllowedUrl(value: string, domain_list: string[]): boolean {
     });
   } catch {
     // Don't pass malformed URLs through to the next step.
-    return true;
+    return false;
   }
 }
 
@@ -77,7 +77,7 @@ const get_webpages = tool({
       { limit: 5 }
     );
     const pages = (result.web ?? [])
-      .filter(page => !isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
+      .filter(page => !isAllowedUrl(page.url, domain_list)) // Filters for allowed URLS (block list or allowed list)
       .slice(0, 5)
       .map(page => ({ url: page.url, title: page.title ?? "" }));
     for (const page of pages) discoveredUrls.add(page.url);
@@ -91,7 +91,7 @@ const readpage = tool({
   description: "Read one of the approved links returned by get_webpages. Maximum three pages.",
   inputSchema: z.object({ url: z.string().url() }),
   execute: async ({ url }) => {
-    if (!isAllowedUrl(url, blockedDomains) || !discoveredUrls.has(url)) {
+    if (!isAllowedUrl(url, domain_list) || !discoveredUrls.has(url)) {
       return { error: "URL not allowed or not found by the search tool." };
     }
     if (pageReads >= 3) return { error: "Page reading limit reached." };
