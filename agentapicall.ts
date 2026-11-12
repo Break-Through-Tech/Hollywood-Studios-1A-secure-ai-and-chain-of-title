@@ -20,10 +20,6 @@ import Firecrawl from 'firecrawl';
 import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 
-//const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) where the api key would go; could hide with dotenv
-
-
-
 import { generateText } from 'ai';
 import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
@@ -204,7 +200,7 @@ export async function GET() {
   model: "anthropic/claude-haiku-5.5",
   tools: {get_webpages, readpage},
   output: Output.object(
-    {CareerFindingsSchema}),
+    {schema: CareerFindingsSchema}),
   prompt: LLM_prompt,
   });
 
