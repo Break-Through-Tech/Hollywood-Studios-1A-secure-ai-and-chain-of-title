@@ -13,7 +13,8 @@
     "qa:signed-in": "node scripts/qa/signed-in.mjs /vault /vault/script/qa-script-1 \"/vault/script/qa-script-1@Tracking\" /vault/workspace/qa-workspace-1 /messages /people /network",
     "qa:interactions": "node scripts/qa/interactions.mjs",
     "typecheck:api": "tsc -p tsconfig.api.json",
-    "test:api": "node scripts/test-api.mjs"
+    "test:api": "node --experimental-strip-types scripts/test-api.mjs",
+    "test:post": "node --experimental-strip-types scripts/test-post-api.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
