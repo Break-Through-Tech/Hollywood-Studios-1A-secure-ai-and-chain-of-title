@@ -79,7 +79,7 @@ const get_webpages = tool({
       { limit: 5 }
     );
     const pages = (result.web ?? [])
-      .filter(page => isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
+      .filter(page => !isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
       .slice(0, 5)
       .map(page => ({ url: page.url, title: page.title ?? "" }));
     for (const page of pages) discoveredUrls.add(page.url);
