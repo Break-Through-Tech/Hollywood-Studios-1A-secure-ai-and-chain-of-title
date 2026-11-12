@@ -28,6 +28,7 @@ import { generateText } from 'ai';
 import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
 import { tool } from 'ai';
+import { Output } from 'ai";
 
 let searchCalls = 0;
 let pageReads = 0;
@@ -187,12 +188,7 @@ Do not include explanatory text or Markdown outside the JSON object.
 
 // Call to LLM; exportable function to other files
 
-export async function GET() {
-  const { output } = await generateText({
-  model: "anthropic/claude-haiku-5.5",
-  tools: {get_webpages, readpage}
-  output: Output.object(
-  z.object({
+const CareerFindingsSchema = z.object({
   personName: z.string().min(1),
   findings: z.array(
     z.object({
@@ -200,13 +196,15 @@ export async function GET() {
       value: z.string().min(1),
       sourceUrl: z.string().url(),
     }).strict(),
-    z.object({
-      field: z.string().min(1),
-      value: z.string().min(1),
-      sourceUrl: z.string().url(),
-    }).strict()
   ),
-}).strict()),
+}).strict();
+
+export async function GET() {
+  const { output } = await generateText({
+  model: "anthropic/claude-haiku-5.5",
+  tools: {get_webpages, readpage},
+  output: Output.object(
+    {CareerFindingsSchema}),
   prompt: LLM_prompt,
   });
 
