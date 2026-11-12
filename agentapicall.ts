@@ -19,12 +19,11 @@ Next steps:
 - figure out what to do with outputs --> likely want to ask user about autofilling and give options
 - figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
 
-const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) // where the api key would go; could hide with dotenv
-/*
 dotenv version:
 import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
-*/
+
+const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) // where the api key would go; could hide with dotenv
 
 import { generateText } from 'ai';
 import { generateObject } from 'ai';
