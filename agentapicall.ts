@@ -1,6 +1,3 @@
-// const greeting: string = "Hello from TypeScript in Colab!";
-// console.log(greeting);
-
 `General:
 1. Use firecrawl to convert webpages to a scrapable format
 2. Use Vercel AI sdk to scrape information from webpages about person
@@ -19,17 +16,26 @@ Next steps:
 - figure out what to do with outputs --> likely want to ask user about autofilling and give options
 - figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
 
-dotenv version:
+import Firecrawl
 import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 
-const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) // where the api key would go; could hide with dotenv
+//const firecrawl = new Firecrawl({apiKey: FIRECRAWL_API_KEY!}) where the api key would go; could hide with dotenv
+
+
 
 import { generateText } from 'ai';
 import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
+
+let searchCalls = 0;
+let pageReads = 0;
+const discoveredUrls = new Set<string>();
+
 // instantiating policy
 const blockedDomains = ['imdb.com', 'linkedin.com']; // fill in all blocked urls (ex. imdb, linkedin)
+
+
 
 // TODO: write function that checks links from the websearch tool and returns False if they're in the blocked list
 function isAllowedUrl(value: string, domain_list: string[]): boolean {
