@@ -24,7 +24,7 @@ import { generateText } from 'ai';
 import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
 import { tool } from 'ai';
-import { Output } from 'ai";
+import { Output } from 'ai';
 
 let searchCalls = 0;
 let pageReads = 0;
@@ -77,7 +77,7 @@ const get_webpages = tool({
       { limit: 5 }
     );
     const pages = (result.web ?? [])
-      .filter(page => !isAllowedUrl(page.url, domain_list)) // Filters for allowed URLS (block list or allowed list)
+      .filter(page => isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
       .slice(0, 5)
       .map(page => ({ url: page.url, title: page.title ?? "" }));
     for (const page of pages) discoveredUrls.add(page.url);
@@ -91,7 +91,7 @@ const readpage = tool({
   description: "Read one of the approved links returned by get_webpages. Maximum three pages.",
   inputSchema: z.object({ url: z.string().url() }),
   execute: async ({ url }) => {
-    if (!isAllowedUrl(url, domain_list) || !discoveredUrls.has(url)) {
+    if (!isAllowedUrl(url, blockedDomains) || !discoveredUrls.has(url)) {
       return { error: "URL not allowed or not found by the search tool." };
     }
     if (pageReads >= 3) return { error: "Page reading limit reached." };
