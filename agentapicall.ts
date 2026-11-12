@@ -16,7 +16,7 @@ Next steps:
 - figure out what to do with outputs --> likely want to ask user about autofilling and give options
 - figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
 
-import Firecrawl
+import Firecrawl from 'firecrawl';
 import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 
@@ -27,6 +27,7 @@ const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 import { generateText } from 'ai';
 import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
+import { tool } from 'ai';
 
 let searchCalls = 0;
 let pageReads = 0;
@@ -189,6 +190,7 @@ Do not include explanatory text or Markdown outside the JSON object.
 export async function GET() {
   const { output } = await generateText({
   model: "anthropic/claude-haiku-5.5",
+  tools: {get_webpages, readpage}
   output: Output.object(
   z.object({
   personName: z.string().min(1),
