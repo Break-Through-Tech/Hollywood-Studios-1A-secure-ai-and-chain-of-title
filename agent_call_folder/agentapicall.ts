@@ -16,7 +16,8 @@ Next steps:
 - figure out what to do with outputs --> likely want to ask user about autofilling and give options
 - figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
 
-import Firecrawl from 'firecrawl';
+
+import {Firecrawl, type SearchResultWeb} from 'firecrawl';
 import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 
@@ -77,7 +78,9 @@ const get_webpages = tool({
       { limit: 5 }
     );
     const pages = (result.web ?? [])
-      .filter(page => isAllowedUrl(page.url, blockedDomains)) // Filters for allowed URLS (block list or allowed list)
+      .filter((page): page is SearchResultWeb =>
+        'url' in page && isAllowedUrl(page.url, blockedDomains)
+      )
       .slice(0, 5)
       .map(page => ({ url: page.url, title: page.title ?? "" }));
     for (const page of pages) discoveredUrls.add(page.url);
@@ -195,7 +198,10 @@ const CareerFindingsSchema = z.object({
   ),
 }).strict();
 
-export async function GET() {
+// Testing to see if my js file updates from here
+//my js file updated but the spacing isn't the same
+
+export async function GenerateCareerInfo() {
   const { output } = await generateText({
   model: "anthropic/claude-haiku-5.5",
   tools: {get_webpages, readpage},
@@ -204,6 +210,7 @@ export async function GET() {
   prompt: LLM_prompt,
   });
 
+  console.log("LLM output:", output);
   return Response.json(output);
 }
 

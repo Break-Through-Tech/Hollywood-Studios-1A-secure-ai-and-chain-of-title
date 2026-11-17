@@ -1,0 +1,20 @@
+{
+  "name": "agent_call_folder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "agentapicall.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ai": "^7.0.173",
+    "dotenv": "^18.0.10",
+    "firecrawl": "^4.54.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6"
+  }
+}
