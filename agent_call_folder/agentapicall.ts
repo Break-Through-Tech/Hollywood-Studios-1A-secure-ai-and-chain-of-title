@@ -1,4 +1,4 @@
-`General:
+`
 1. Use firecrawl to convert webpages to a scrapable format
 2. Use Vercel AI sdk to scrape information from webpages about person
 3. Define tools for the AI agent to use to not waste credits (split up url gathering and reading page)
@@ -6,15 +6,7 @@
 5. Define information that we want the LLM to identify according to the schema DB
 6. Prompt LLM to output desired data using tools
 7. LLM outputs findings in JSON readable format
-
-Limitations:
-- Firecrawl has credit limits separate from credit limits accrued from calling the LLM, so may need to replace
-  Firecrawl with a different tool if anticipated use of credits goes above allotted credits for free tier
-
-Next steps:
-- finish script and test
-- figure out what to do with outputs --> likely want to ask user about autofilling and give options
-- figure out how to feed in data about person we want LLM to search up (their name and a "hint" about who they are)`
+`
 
 
 import {Firecrawl, type SearchResultWeb} from 'firecrawl';
@@ -22,7 +14,6 @@ import "dotenv/config";
 const firecrawl = new Firecrawl({apiKey: process.env.FIRECRAWL_API_KEY!});
 
 import { generateText } from 'ai';
-import { generateObject } from 'ai';
 import { z } from 'zod'; // allows ai agent to export structured generateText
 import { tool } from 'ai';
 import { Output } from 'ai';
@@ -104,7 +95,7 @@ const readpage = tool({
   },
 });
 
-// Instruction prompt for the LLM
+// Instruction prompt for the LLM (TODO: feed in the name and hint dynamically)
 
 const LLM_prompt = `
 You are a research assistant responsible for collecting accurate,
@@ -113,6 +104,10 @@ publicly available career information about people in the film industry.
 Your goal is to identify the requested person, research their professional
 background using the available tools, and return structured information
 that can be used to populate a database.
+
+Here is the person's name and hint to help you identify them:
+Name: ${name}
+Hint: ${hint}
 
 Here are the tools available to you:
 1. get_webpages(name, hint)
@@ -201,7 +196,10 @@ const CareerFindingsSchema = z.object({
 // Testing to see if my js file updates from here
 //my js file updated but the spacing isn't the same
 
-export async function GenerateCareerInfo() {
+const targetName = "";
+const targetHint = "";
+
+export async function GenerateCareerInfo(targetName: string, targetHint: string) {
   const { output } = await generateText({
   model: "anthropic/claude-haiku-5.5",
   tools: {get_webpages, readpage},
