@@ -1,0 +1,5 @@
+"name": "agent_call_folder",
+"scripts": {
+  "build": "tsc",
+  "test": "npm run build && node test_script.js"
+},

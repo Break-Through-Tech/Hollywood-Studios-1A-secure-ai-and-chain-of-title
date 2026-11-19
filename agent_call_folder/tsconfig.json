@@ -5,7 +5,8 @@
     "moduleResolution": "Bundler",
     "types": ["node"],
     "skipLibCheck": true,
-    "noEmit": false
+    "noEmit": false,
+    "outDir": "."
   },
-  "include": ["agentapicall.ts", "small_test.ts"]
+  "include": ["agentapicall.ts", "test_script.ts"]
 }
