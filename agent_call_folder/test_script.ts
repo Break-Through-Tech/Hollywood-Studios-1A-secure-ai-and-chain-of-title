@@ -1,13 +1,12 @@
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
-// ASSUMES agentapicall.ts exports:
-//   researchPerson(name: string, hint: string)
-// returning { personName, findings: [{field, value, sourceUrl}], needsReview?: any[] }
-import { researchPerson } from "./agentapicall";
+// researchPerson(name, hint) returns
+//   { personName, findings: [{field, value, sourceUrl}], needsReview: [{field, value, reason, sourceUrl}] }
+// BLOCKED_DOMAINS reuses the agent's own blocked list so the test checks the same policy
+import { researchPerson, blockedDomains as BLOCKED_DOMAINS } from "./agentapicall.js";
 
 // ---------- CONFIG ----------
 const RUNS_PER_PERSON = 2; // repeat runs to check stability
-const BLOCKED_DOMAINS = ["imdb.com", "linkedin.com"];
 
 type TestCase = {
   label: string;
@@ -176,4 +175,7 @@ async function main() {
   console.log("Next: open test_results_findings.csv, click each sourceUrl, and fill in the last two columns.");
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

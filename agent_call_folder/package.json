@@ -4,18 +4,24 @@
   "description": "",
   "main": "agentapicall.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "lookup": "npm run build && node lookup.js",
+    "small": "npm run build && node small_test.js",
+    "test": "npm run build && node test_script.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.106",
     "ai": "^7.0.173",
     "dotenv": "^18.0.10",
-    "firecrawl": "^4.54.0"
+    "firecrawl": "^4.54.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/node": "^26.6.6"
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
   },
   "type": "module"
 }

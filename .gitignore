@@ -1,1 +1,15 @@
+# Dependencies
+node_modules/
 
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Generated test output
+agent_call_folder/test_results_*.csv
+
+# OS / editor
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
