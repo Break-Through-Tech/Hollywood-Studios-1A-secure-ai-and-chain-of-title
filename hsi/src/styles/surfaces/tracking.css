@@ -1,0 +1,463 @@
+/* ============ Sharing Insights (tracking panel) ============ */
+.vault-tracking-panel {
+  margin-top: 18px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.vault-tracking-refresh {
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: var(--r-md);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vault-tracking-refresh:hover:not(:disabled) { background: var(--surface-2); }
+.vault-tracking-links,
+.vault-tracking-viewers {
+  padding: 16px 18px;
+}
+.vault-tracking-links { border-bottom: 1px solid var(--hair); }
+.vault-tracking-hint {
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.vault-tracking-create {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.vault-tracking-create .vault-modal-input { flex: 1; min-width: 220px; }
+.vault-tracking-gate-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.vault-tracking-create-btn {
+  border: none;
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-md);
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vault-tracking-create-btn:hover:not(:disabled) { background: var(--navy-deep); }
+.vault-tracking-create-btn:disabled { opacity: 0.6; cursor: default; }
+.vault-tracking-link-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vault-tracking-link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+}
+.vault-tracking-link-row--off { opacity: 0.55; }
+.vault-tracking-link-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.vault-tracking-link-info strong {
+  font-size: 13.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vault-tracking-link-info span { font-size: 12px; color: var(--text-3); }
+.vault-tracking-link-btn {
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vault-tracking-link-btn:hover:not(:disabled) { background: var(--surface-2); }
+.vault-tracking-link-btn:disabled { opacity: 0.5; cursor: default; }
+.vault-tracking-viewer {
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.vault-tracking-viewer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+.vault-tracking-viewer-row:hover { background: var(--surface-2); }
+.vault-tracking-viewer-id {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.vault-tracking-viewer-id strong {
+  font-size: 13.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vault-tracking-viewer-id span { font-size: 12px; color: var(--text-3); }
+.vault-tracking-viewer-stats {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.vault-tracking-note-badge {
+  background: rgba(38,57,95, 0.1);
+  color: var(--navy);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  font-size: 11.5px;
+}
+.vault-tracking-chevron { color: var(--text-3); transition: transform 0.15s ease; flex-shrink: 0; }
+.vault-tracking-chevron--open { transform: rotate(180deg); }
+.vault-tracking-viewer-detail {
+  border-top: 1px solid var(--hair);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface-2);
+}
+.vault-tracking-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vault-tracking-session {
+  display: flex;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.vault-tracking-session span:first-child { min-width: 120px; color: var(--text-3); }
+.vault-tracking-session-link { font-style: italic; }
+.vault-tracking-notes-block { display: flex; flex-direction: column; gap: 6px; }
+.vault-tracking-note {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+}
+.vault-tracking-note--viewer { border-left: 3px solid var(--navy); }
+.vault-tracking-note p { font-size: 13px; color: var(--navy-deep); line-height: 1.45; margin: 0 0 3px; }
+.vault-tracking-note span { font-size: 11px; color: var(--text-3); }
+.vault-tracking-note-input { display: flex; gap: 8px; }
+.vault-tracking-note-input .vault-modal-input { flex: 1; }
+
+/* ---- Project page tabs (Project / Tracking) ---- */
+.vault-item-tabs { margin: 6px 0 18px; }
+.vault-tab-count { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); font-weight: 500; }
+.vault-tab.active .vault-tab-count { color: var(--text-2); }
+.vault-tab-alert {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--gold-pale);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ---- Tracking: summary stats + activity chart ---- */
+.vault-tracking-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--hair);
+}
+.vault-tracking-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.vault-tracking-stat strong {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vault-tracking-stat span {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.vault-tracking-activity {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--hair);
+}
+.vault-tracking-activity-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 72px;
+  margin-top: 10px;
+}
+.vault-tracking-activity-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.vault-tracking-activity-bar {
+  width: 100%;
+  border-radius: var(--r-sm);
+  background: var(--navy);
+  min-height: 0;
+}
+.vault-tracking-activity-bar--empty { background: transparent; }
+.vault-tracking-activity-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ---- Tracking: link editor + advanced analytics ---- */
+.vault-tracking-new-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  background: var(--navy);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.vault-tracking-links-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.vault-tracking-kill-all {
+  background: none;
+  border: 1px solid rgba(180,35,24, 0.35);
+  color: var(--bad);
+  border-radius: var(--r-md);
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vault-tracking-kill-all:hover { background: rgba(180,35,24, 0.06); }
+.vault-tracking-link-wrap {
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.vault-tracking-link-wrap .vault-tracking-link-row { border: none; border-radius: 0; }
+.vault-tracking-editor {
+  border-top: 1px solid var(--hair);
+  background: var(--surface-2);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.vault-tracking-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.vault-tracking-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.vault-tracking-field > span {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.vault-tracking-nda-input { resize: vertical; min-height: 72px; font-family: inherit; }
+.vault-tracking-editor-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.vault-tracking-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.vault-tracking-check input { accent-color: var(--navy); }
+.vault-tracking-editor-actions { display: flex; gap: 8px; }
+.vault-tracking-versions,
+.vault-tracking-dropoff,
+.vault-tracking-signatures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+.vault-tracking-version-list { display: flex; flex-direction: column; gap: 4px; }
+.vault-tracking-version-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 12.5px;
+  padding: 7px 10px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.vault-tracking-version-row strong { font-size: 12.5px; color: var(--navy); }
+.vault-tracking-version-row span { color: var(--text-2); }
+.vault-tracking-version-row--old strong { color: var(--text-3); }
+.vault-tracking-version-filter {
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--surface);
+  color: var(--text);
+}
+.vault-tracking-heatmap {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 90px;
+  padding: 6px 4px 2px;
+  overflow-x: auto;
+}
+.vault-tracking-heat-col {
+  flex: 1 0 14px;
+  max-width: 34px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+}
+.vault-tracking-heat-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  background: var(--navy);
+  min-height: 2px;
+}
+.vault-tracking-heat-num { font-size: 9.5px; color: var(--text-3); }
+.vault-tracking-score {
+  min-width: 30px;
+  text-align: center;
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  background: var(--hair);
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.vault-tracking-score--warm { background: rgba(180,83,9, 0.12); color: var(--warn); }
+.vault-tracking-score--hot { background: rgba(30,122,76, 0.12); color: #15803d; }
+.vault-tracking-session-block { display: flex; flex-direction: column; gap: 3px; }
+.vault-tracking-session-geo { color: var(--text-3); }
+.vault-tracking-version-badge {
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: rgba(38,57,95, 0.09);
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 700;
+}
+.vault-tracking-timeline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 26px;
+  max-width: 420px;
+  padding-left: 134px;
+}
+.vault-tracking-timeline-col {
+  flex: 1 0 5px;
+  max-width: 16px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.vault-tracking-timeline-bar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  background: rgba(38,57,95, 0.55);
+  min-height: 2px;
+}
+.vault-tracking-timeline-bar--empty { background: var(--hair); height: 2px !important; }
+.vault-tracking-sig-list { display: flex; flex-direction: column; gap: 4px; }
+.vault-tracking-sig-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.vault-tracking-sig-who { display: flex; align-items: baseline; gap: 8px; }
+.vault-tracking-sig-who strong { font-size: 13px; }
+.vault-tracking-sig-who span { font-size: 12px; color: var(--text-3); }
+.vault-tracking-sig-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11.5px;
+  color: var(--text-3);
+}

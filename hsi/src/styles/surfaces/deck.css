@@ -1,0 +1,154 @@
+/* Deck viewer — unlisted slide decks (/executive-summary). A dark stage so slides read like a projector. */
+.deck {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #0B1324;
+  color: #E7EAF1;
+  font-family: var(--font-ui);
+  user-select: none;
+}
+
+.deck-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: opacity .2s;
+}
+.deck-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.deck-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.deck-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.deck-btn:hover { background: rgba(255,255,255,0.10); }
+.deck-btn[aria-pressed="true"] { background: rgba(255,255,255,0.14); }
+.deck-btn svg {
+  width: 16px; height: 16px;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.deck-main {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: center;
+  min-height: 0;
+  padding: 24px 0;
+}
+.deck-stage {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.deck-slide {
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  background: #fff;
+}
+.deck-nav {
+  justify-self: center;
+  width: 40px; height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.deck-nav:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
+.deck-nav:disabled { opacity: .2; cursor: default; }
+.deck-status { grid-column: 1 / -1; text-align: center; color: rgba(231,234,241,0.6); }
+
+.deck-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px 14px;
+}
+.deck-progress { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.deck-progress > div { height: 100%; background: var(--gold-bright); transition: width .25s ease; }
+.deck-count { font-family: var(--font-mono); font-size: 12px; color: rgba(231,234,241,0.7); min-width: 52px; text-align: right; }
+
+/* presenting: pure black, chrome fades until hovered */
+.deck.is-fullscreen { background: #000; }
+.deck.is-fullscreen .deck-bar,
+.deck.is-fullscreen .deck-foot,
+.deck.is-fullscreen .deck-nav { opacity: 0; transition: opacity .2s; }
+.deck.is-fullscreen:hover .deck-bar,
+.deck.is-fullscreen:hover .deck-foot,
+.deck.is-fullscreen:hover .deck-nav { opacity: 1; }
+.deck.is-fullscreen .deck-slide { border-radius: 0; box-shadow: none; }
+
+.deck-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow-y: auto;
+  padding: 72px 24px 32px;
+  background: rgba(5,9,18,0.92);
+  backdrop-filter: blur(6px);
+}
+.deck-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.deck-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: rgba(231,234,241,0.7);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.deck-thumb:hover { background: rgba(255,255,255,0.05); }
+.deck-thumb.is-current { border-color: var(--gold-bright); color: #fff; }
+.deck-thumb canvas { display: block; background: #fff; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .deck-bar { padding: 10px 16px; }
+  .deck-btn span { display: none; }
+  .deck-btn { padding: 0 9px; }
+  .deck-main { grid-template-columns: 1fr; padding: 12px 16px; }
+  .deck-nav { display: none; }
+  .deck-foot { padding: 8px 16px 12px; }
+  .deck-grid-inner { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .deck-thumb canvas { max-width: 100%; height: auto !important; }
+}

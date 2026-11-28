@@ -1,0 +1,112 @@
+/* ── Home (Network) ─────────────────────────────────────────────────── */
+.net-card { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 20px; }
+.net-avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--navy); background: var(--navy-tint); flex-shrink: 0; text-transform: uppercase; }
+
+/* Side column cards */
+.net-side-card { padding: 16px; }
+.net-side-title { display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
+.net-side-title .cnt { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--text-3); font-family: var(--font-mono); }
+.net-side-title .btn { margin-left: auto; }
+.net-side-empty { font-size: 13px; color: var(--text-3); padding: 2px 0; }
+.net-side-list { display: grid; gap: 8px; }
+.net-side-row { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; min-width: 0; padding: 2px 0; border-radius: var(--r-sm); cursor: pointer; }
+.net-side-row-text { flex: 1; min-width: 0; line-height: 1.25; }
+.net-side-row-text b { display: block; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-side-row-text small { display: block; font-size: 12px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-side-row-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+
+/* You */
+.net-profile-card { display: flex; align-items: center; gap: 12px; }
+.net-profile-info { min-width: 0; flex: 1; line-height: 1.25; }
+.net-profile-name { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.net-profile-handle { font-size: 12.5px; color: var(--text-3); }
+.net-profile-link { font-size: 12.5px; font-weight: 600; color: var(--link); text-decoration: none; white-space: nowrap; }
+.net-profile-link:hover { text-decoration: underline; }
+
+/* 48h activity */
+.net-views-bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 48px; }
+.net-views-bar { flex: 1; min-height: 2px; background: var(--navy-tint-2); border-radius: 2px 2px 0 0; transition: height .3s; }
+.net-views-bar:last-child { background: var(--navy); }
+
+/* Composer */
+.net-composer { padding: 14px 16px; display: grid; gap: 10px; }
+.net-composer-input {
+  width: 100%; border: 0; outline: none; resize: none; background: transparent;
+  font-family: var(--font-ui); font-size: 15px; line-height: 1.5; color: var(--text);
+  min-height: 56px; padding: 4px 0 8px; border-bottom: 1px solid var(--hair-2);
+}
+.net-composer-input::placeholder { color: var(--text-3); }
+.net-composer-previews { display: flex; gap: 8px; flex-wrap: wrap; }
+.net-composer-preview-item { position: relative; width: 72px; height: 72px; border-radius: var(--r-md); overflow: hidden; background: var(--surface-2); }
+.net-composer-preview-media { width: 100%; height: 100%; object-fit: cover; }
+.net-composer-preview-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: 0; background: rgba(15,27,51,0.7); color: #fff; font-size: 12px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.net-composer-error { font-size: 13px; color: var(--bad); }
+.net-composer-actions { display: flex; align-items: center; gap: 4px; }
+.net-composer-tools { display: flex; align-items: center; gap: 2px; flex: 1; }
+.net-composer-tool-btn { width: 32px; height: 32px; border-radius: var(--r-sm); border: 0; background: transparent; color: var(--text-2); cursor: pointer; display: grid; place-items: center; transition: background-color .15s, color .15s; }
+.net-composer-tool-btn:hover:not(:disabled) { background: var(--navy-tint); color: var(--text); }
+.net-composer-tool-btn:disabled { opacity: 0.4; cursor: default; }
+.net-composer-charcount { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); margin-left: 8px; }
+.net-composer-submit { margin-left: auto; }
+
+/* Feed */
+.net-feed { padding: 0; }
+.net-feed-note { padding: 40px 20px; text-align: center; color: var(--text-3); font-size: 14px; }
+@keyframes post-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.net-post-enter { animation: post-fade-in .35s ease-out both; }
+.net-post { display: grid; gap: 12px; padding: 18px 20px; }
+.net-post + .net-post { border-top: 1px solid var(--hair-2); }
+.net-post-header { display: flex; align-items: center; gap: 10px; }
+.net-post-who { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; min-width: 0; }
+.net-post-name { font-size: 14px; font-weight: 600; display: block; line-height: 1.2; }
+.net-post-handle { font-size: 12.5px; color: var(--text-3); }
+.net-post-time { margin-left: auto; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+.net-post-menu-btn { width: 28px; height: 28px; border-radius: var(--r-sm); border: 0; background: transparent; color: var(--text-3); cursor: pointer; display: grid; place-items: center; transition: background-color .15s, color .15s; }
+.net-post-menu-btn:hover { background: var(--navy-tint); color: var(--text); }
+.net-post-confirm-delete { display: flex; gap: 6px; }
+.net-post-content { font-size: 14.5px; line-height: 1.55; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.net-post-media { border-radius: var(--r-md); overflow: hidden; display: grid; gap: 2px; border: 1px solid var(--hair-2); }
+.net-post-media-1 { grid-template-columns: 1fr; }
+.net-post-media-2 { grid-template-columns: 1fr 1fr; }
+.net-post-media-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.net-post-media-3 .net-post-media-item:first-child { grid-row: 1 / 3; }
+.net-post-media-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.net-post-media-item { width: 100%; height: 100%; min-height: 160px; max-height: 400px; object-fit: cover; display: block; background: var(--surface-2); }
+.net-post-media-1 .net-post-media-item { max-height: 500px; }
+.net-post-actions { display: flex; align-items: center; gap: 4px; }
+.net-post-action-btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 8px; border-radius: var(--r-sm); border: 0; background: transparent; color: var(--text-3); font-family: var(--font-ui); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: background-color .15s, color .15s; }
+.net-post-action-btn:hover { background: var(--navy-tint); color: var(--text); }
+.net-post-action-btn.liked { color: var(--bad); }
+.net-load-more { margin: 4px auto 0; }
+
+/* Link previews (also used in messages) */
+.net-link-preview { display: flex; flex-direction: column; border: 1px solid var(--hair); border-radius: var(--r-md); overflow: hidden; text-decoration: none; color: inherit; transition: border-color .15s; background: var(--surface); }
+.net-link-preview:hover { border-color: var(--hair-strong); }
+.net-link-preview-img-wrap { max-height: 240px; overflow: hidden; background: var(--surface-2); }
+.net-link-preview-img { width: 100%; height: 100%; max-height: 240px; object-fit: cover; display: block; }
+.net-link-preview-body { padding: 10px 12px; display: grid; gap: 2px; }
+.net-link-preview-site { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+.net-link-preview-title { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.net-link-preview-desc { font-size: 12.5px; color: var(--text-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Messages tab (list of conversations in the center column) */
+.net-message-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; }
+.net-message-row + .net-message-row { border-top: 1px solid var(--hair-2); }
+.net-message-row-text { flex: 1; min-width: 0; }
+.net-message-row-top { display: flex; align-items: baseline; gap: 8px; }
+.net-message-row-top b { font-size: 14px; font-weight: 600; }
+.net-message-row-top small { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.net-message-row-preview { font-size: 13.5px; color: var(--text-2); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .net-content { grid-template-columns: 1fr; }
+  .net-col-right { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .net-topbar { height: auto; flex-wrap: wrap; padding: 10px 16px; gap: 10px; }
+  .net-topbar h1 { flex: 1; }
+  .net-search { width: 100%; order: 3; margin-left: 0; }
+  .net-content { padding: 16px; gap: 12px; }
+  .net-col-right { grid-template-columns: 1fr; }
+  .net-post { padding: 14px 16px; }
+}
