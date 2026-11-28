@@ -1,21 +1,32 @@
+// LIVE evaluation against the real web + model. Costs credits on every run:
+// per run, 1 Firecrawl search + up to 3 page scrapes + model tokens.
+//
+//   npm run test:live                 # all cases, RUNS_PER_PERSON times each
+//   RUNS=1 ONLY=zendaya npm run test:live
+//
+// Writes test_results_summary.csv (one row per run) and
+// test_results_findings.csv (one row per finding, for checking by hand).
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
-// ASSUMES agentapicall.ts exports:
-//   researchPerson(name: string, hint: string)
-// returning { personName, findings: [{field, value, sourceUrl}], needsReview?: any[] }
-import { researchPerson } from "./agentapicall";
+import {
+  researchPerson,
+  isAllowedUrl,
+  normalizeUrl,
+  CareerFindingsSchema,
+  type ResearchResult,
+} from "./agentapicall.js";
 
 // ---------- CONFIG ----------
-const RUNS_PER_PERSON = 2; // repeat runs to check stability
-const BLOCKED_DOMAINS = ["imdb.com", "linkedin.com"];
+const RUNS_PER_PERSON = Number(process.env.RUNS ?? 2); // repeat runs to check stability
+const ONLY = process.env.ONLY; // run a single test case by label
 
 type TestCase = {
   label: string;
   name: string;
   hint: string;
-  expectedCredits?: string[]; // known titles; matched case-insensitively in finding values
-  expectEmpty?: boolean; // true for obscure people: nothing should be invented
-  forbiddenTerms?: string[]; // must NOT appear in any finding (optional)
+  expectedCredits?: string[]; // known titles; matched case-insensitively against credit values
+  expectEmpty?: boolean; // obscure people: findings must be empty (needsReview may have items)
+  forbiddenTerms?: string[]; // must NOT appear in any finding
 };
 
 // ---------- TEST CASES ----------
@@ -24,13 +35,13 @@ const TESTS: TestCase[] = [
     label: "nathan-correct-hint",
     name: "Nathan Fielder",
     hint: "comedian, writer, Nathan for You",
-    expectedCredits: ["Nathan for You", "The Rehearsal", "The Curse", "You Can See Everything"],
+    expectedCredits: ["Nathan for You", "The Rehearsal", "The Curse"],
   },
   {
+    // An unusual hint: does the agent still identify the right person?
     label: "nathan-holmes-hint",
     name: "Nathan Fielder",
     hint: "Elizabeth Holmes",
-    // The hint points at his 2026 A24 documentary about Elizabeth Holmes (co-directed with Lance Oppenheim)
     expectedCredits: ["You Can See Everything"],
   },
   {
@@ -40,140 +51,173 @@ const TESTS: TestCase[] = [
     expectedCredits: ["Euphoria", "Spider-Man", "Dune", "Challengers"],
   },
   {
-    // Similar name: Nathan Fillion (Castle, Firefly) vs Nathan Fielder.
-    // The agent must not mix in Fielder's credits.
+    // Similar name: Nathan Fillion vs Nathan Fielder. Must not mix credits.
     label: "similar-name",
     name: "Nathan Fillion",
     hint: "actor",
     expectedCredits: ["Castle", "Firefly", "The Rookie"],
-    forbiddenTerms: ["Nathan for You", "The Rehearsal", "You Can See Everything", "Elizabeth Holmes"],
+    forbiddenTerms: ["Nathan for You", "The Rehearsal", "Elizabeth Holmes"],
   },
   {
+    // A director: credits should come back with role "Director" / "Writer".
+    label: "director",
+    name: "Greta Gerwig",
+    hint: "director, Lady Bird",
+    expectedCredits: ["Lady Bird", "Little Women", "Barbie"],
+  },
+  {
+    // Same name as a famous athlete: the hint must keep the agent on the actor.
+    label: "athlete-name-clash",
+    name: "Michael B. Jordan",
+    hint: "actor, Creed",
+    expectedCredits: ["Creed", "Black Panther", "Fruitvale Station"],
+    forbiddenTerms: ["Chicago Bulls", "Space Jam"],
+  },
+  {
+    // Made-up person: nothing should be invented.
     label: "obscure",
     name: "Zxqvland Pemberton Okafor",
     hint: "film industry",
     expectEmpty: true,
   },
   {
-    // Plausible-sounding invented name with a film hint. Not involved in film,
-    // so findings should be empty; any same-name match should go to needsReview.
+    // Plausible invented name with a film hint. Any same-name match belongs in needsReview.
     label: "obscure-not-in-film",
     name: "Dorothy Wexler-Nakamura",
     hint: "film director",
     expectEmpty: true,
   },
+  {
+  label: "my-test",                          // used with ONLY=my-test
+  name: "Pedro Pascal",
+  hint: "actor, The Last of Us",
+  expectedCredits: ["The Last of Us", "The Mandalorian", "Narcos"],
+  forbiddenTerms: [],                        // words that must NOT show up
+},
+{
+  label: "my-test",                          // used with ONLY=my-test
+  name: "Trevor Noah",
+  hint: "comedian, The Daily Show",
+  expectedCredits: ["Trevor Noah: Afraid of the Dark", "Trevor Noah: Son of Patricia", "The Daily Show with Trevor Noah"],
+  forbiddenTerms: [],                        // words that must NOT show up
+},
 ];
 
 // ---------- HELPERS ----------
-const hostOf = (u: string) => {
-  try {
-    return new URL(u).hostname.toLowerCase();
-  } catch {
-    return "";
-  }
-};
-const isBlocked = (u: string) =>
-  BLOCKED_DOMAINS.some((d) => hostOf(u) === d || hostOf(u).endsWith("." + d));
 const csv = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
 const toCsv = (data: Record<string, unknown>[]) =>
   data.length
     ? [Object.keys(data[0]).join(","), ...data.map((r) => Object.values(r).map(csv).join(","))].join("\n")
     : "";
 
+function checkRun(t: TestCase, out: ResearchResult) {
+  const { findings, needsReview, meta } = out;
+  const read = new Set(meta.readUrls.map(normalizeUrl));
+
+  const schemaOk = CareerFindingsSchema.safeParse({ personName: out.personName, findings, needsReview }).success;
+  const blockedHits = [...findings, ...needsReview].filter((f) => !isAllowedUrl(f.sourceUrl)).length;
+  const unreadSources = findings.filter((f) => !read.has(normalizeUrl(f.sourceUrl))).length;
+  const withinLimits = meta.searchCalls <= 1 && meta.pageReads <= 3;
+
+  const creditBlob = findings
+    .filter((f) => f.field === "credit")
+    .map((f) => f.value.toLowerCase())
+    .join(" | ");
+  const allBlob = findings.map((f) => `${f.value} ${f.role ?? ""}`.toLowerCase()).join(" | ");
+
+  let recall = "";
+  if (t.expectedCredits?.length) {
+    const hits = t.expectedCredits.filter((c) => creditBlob.includes(c.toLowerCase()));
+    recall = `${hits.length}/${t.expectedCredits.length}`;
+  }
+  const forbiddenHits = (t.forbiddenTerms ?? []).filter((x) => allBlob.includes(x.toLowerCase())).length;
+
+  const pass =
+    schemaOk &&
+    blockedHits === 0 &&
+    unreadSources === 0 &&
+    withinLimits &&
+    forbiddenHits === 0 &&
+    (t.expectEmpty ? findings.length === 0 : findings.length > 0);
+
+  return { pass, schemaOk, blockedHits, unreadSources, withinLimits, forbiddenHits, recall };
+}
+
+// ---------- RUN ----------
 const rows: Record<string, unknown>[] = [];
 const findingRows: Record<string, unknown>[] = [];
 
-// ---------- RUN ----------
 async function main() {
-  for (const t of TESTS) {
+  const cases = TESTS.filter((t) => !ONLY || t.label === ONLY);
+  if (cases.length === 0) throw new Error(`No test case labelled "${ONLY}"`);
+
+  for (const t of cases) {
     for (let run = 1; run <= RUNS_PER_PERSON; run++) {
       const start = Date.now();
-      let out: any = null;
+      let out: ResearchResult | null = null;
       let error = "";
       try {
         out = await researchPerson(t.name, t.hint);
-      } catch (e: any) {
-        error = e?.message ?? String(e);
+      } catch (e) {
+        error = e instanceof Error ? e.message : String(e);
       }
-      const secs = ((Date.now() - start) / 1000).toFixed(1);
-
-      const findings: any[] = out?.findings ?? [];
-      const review: any[] = out?.needsReview ?? [];
-
-      // Automatic checks
-      const schemaOk =
-        !error &&
-        typeof out?.personName === "string" &&
-        findings.every((f) => f.field && f.value && hostOf(f.sourceUrl));
-      const missingSource = findings.filter((f) => !f.sourceUrl).length;
-      const blockedHits = findings.filter((f) => isBlocked(f.sourceUrl)).length;
-
-      const blob = findings.map((f) => String(f.value).toLowerCase()).join(" | ");
-
-      let recall = "";
-      if (t.expectedCredits?.length) {
-        const hits = t.expectedCredits.filter((c) => blob.includes(c.toLowerCase()));
-        recall = `${hits.length}/${t.expectedCredits.length}`;
-      }
-
-      let forbiddenHits = 0;
-      if (t.forbiddenTerms?.length) {
-        forbiddenHits = t.forbiddenTerms.filter((x) => blob.includes(x.toLowerCase())).length;
-      }
-
-      const pass =
-        schemaOk &&
-        blockedHits === 0 &&
-        missingSource === 0 &&
-        forbiddenHits === 0 &&
-        (t.expectEmpty ? findings.length === 0 : true);
+      const seconds = ((Date.now() - start) / 1000).toFixed(1);
+      const checks = out ? checkRun(t, out) : null;
 
       rows.push({
         label: t.label,
         name: t.name,
         run,
-        pass,
+        pass: checks?.pass ?? false,
         error,
-        schemaOk,
-        findings: findings.length,
-        needsReview: review.length,
-        blockedHits,
-        missingSource,
-        forbiddenHits,
-        recall,
-        seconds: secs,
+        findings: out?.findings.length ?? 0,
+        needsReview: out?.needsReview.length ?? 0,
+        recall: checks?.recall ?? "",
+        forbiddenHits: checks?.forbiddenHits ?? "",
+        unreadSources: checks?.unreadSources ?? "",
+        blockedHits: checks?.blockedHits ?? "",
+        pagesRead: out?.meta.pageReads ?? "",
+        steps: out?.meta.steps ?? "",
+        seconds,
       });
 
-      // One row per finding so you can open the source and mark it correct
-      for (const f of findings) {
-        findingRows.push({
-          name: t.name,
-          run,
-          field: f.field,
-          value: f.value,
-          sourceUrl: f.sourceUrl,
-          supported_by_source: "", // FILL IN BY HAND: yes / no (for precision)
-          right_person: "", // FILL IN BY HAND: yes / no
-        });
+      for (const [list, items] of [["finding", out?.findings ?? []], ["needsReview", out?.needsReview ?? []]] as const) {
+        for (const f of items) {
+          findingRows.push({
+            label: t.label,
+            run,
+            list,
+            field: f.field,
+            value: f.value,
+            year: f.year,
+            role: f.role,
+            workType: f.workType,
+            reason: "reason" in f ? f.reason : "",
+            sourceUrl: f.sourceUrl,
+            supported_by_source: "", // FILL IN BY HAND: yes / no  (precision)
+            right_person: "", //        FILL IN BY HAND: yes / no
+          });
+        }
       }
 
       console.log(
-        `[${pass ? "PASS" : "FAIL"}] ${t.label} / ${t.name} run ${run}: ` +
-          `${findings.length} findings, ${review.length} for review, ` +
-          `recall ${recall || "n/a"}, forbidden ${forbiddenHits}, ${secs}s` +
-          (error ? `  ERROR: ${error}` : "")
+        `[${checks?.pass ? "PASS" : "FAIL"}] ${t.label} run ${run}: ` +
+          `${out?.findings.length ?? 0} findings, ${out?.needsReview.length ?? 0} for review, ` +
+          `recall ${checks?.recall || "n/a"}, forbidden ${checks?.forbiddenHits ?? "-"}, ${seconds}s` +
+          (error ? `\n    ERROR: ${error}` : ""),
       );
     }
   }
 
-  // ---------- OUTPUT ----------
   writeFileSync("test_results_summary.csv", toCsv(rows));
   writeFileSync("test_results_findings.csv", toCsv(findingRows));
 
-  console.table(rows);
+  console.table(rows.map(({ error, ...r }) => r));
   console.log(`\n${rows.filter((r) => r.pass).length}/${rows.length} runs passed automatic checks.`);
-  console.log("Wrote test_results_summary.csv and test_results_findings.csv");
   console.log("Next: open test_results_findings.csv, click each sourceUrl, and fill in the last two columns.");
 }
 
-main();
+main().catch((err) => {
+  console.error(err instanceof Error ? err.message : err);
+  process.exitCode = 1;
+});
