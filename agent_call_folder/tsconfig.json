@@ -4,9 +4,9 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "types": ["node"],
+    "strict": true,
     "skipLibCheck": true,
-    "noEmit": false,
-    "outDir": "."
+    "noEmit": true
   },
-  "include": ["agentapicall.ts", "test_script.ts"]
+  "include": ["*.ts", "tests/**/*.ts"]
 }
