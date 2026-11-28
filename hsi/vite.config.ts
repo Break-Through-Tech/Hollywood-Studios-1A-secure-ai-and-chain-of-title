@@ -63,6 +63,12 @@ function apiPlugin() {
       if (blobToken) process.env.BLOB_READ_WRITE_TOKEN = blobToken;
       if (env.OLLAMA_HOST) process.env.OLLAMA_HOST = env.OLLAMA_HOST;
       if (env.OLLAMA_MODEL) process.env.OLLAMA_MODEL = env.OLLAMA_MODEL;
+      // Credit research agent keys: hsi/.env*.local wins, else agent_call_folder/.env.
+      const agentEnv = loadEnv(config.mode, `${config.envDir}/../agent_call_folder`, '');
+      for (const key of ['AI_GATEWAY_API_KEY', 'FIRECRAWL_API_KEY', 'AGENT_MODEL']) {
+        const value = env[key] || agentEnv[key];
+        if (value) process.env[key] = value;
+      }
     },
     configureServer(server: { middlewares: { use: (fn: (req: IncomingMessage, res: ServerResponse, next: () => void) => void) => void } }) {
       server.middlewares.use(async (req, res, next) => {
@@ -115,6 +121,8 @@ function apiPlugin() {
             '/api/entity/view': () => import('./api/entity/_view'),
             '/api/entity/company-save': () => import('./api/entity/_company-save'),
             '/api/profile/experience/save': () => import('./api/profile/experience/_save'),
+            '/api/profile/credits/research': () => import('./api/profile/credits/_research'),
+            '/api/profile/credits/add': () => import('./api/profile/credits/_add'),
             '/api/search/query': () => import('./api/search/_query'),
             '/api/search/trending': () => import('./api/search/_trending'),
             '/api/vault/upload': () => import('./api/vault/_upload'),
@@ -206,9 +214,10 @@ function apiPlugin() {
           if (req.url === '/api/verify-otp' && req.method === 'POST') {
             if (!data.email || !data.code) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Email and code are required' })); return; }
 
-            async function ensureProfile(userEmail: string) {
+            /** Returns true when it created the profile (a brand-new member). */
+            async function ensureProfile(userEmail: string): Promise<boolean> {
               const [existing] = await sql`SELECT id FROM profiles WHERE email = ${userEmail}`;
-              if (existing) return;
+              if (existing) return false;
               const [app] = await sql`SELECT first_name, last_name FROM applications WHERE email = ${userEmail}`;
               const firstName = app?.first_name || 'User';
               const lastName = app?.last_name || '';
@@ -227,8 +236,8 @@ function apiPlugin() {
 
             const backup = process.env.OTP_BACKUP_CODE;
             if (backup && data.code === backup) {
-              await ensureProfile(data.email);
-              res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ valid: true })); return;
+              const newProfile = await ensureProfile(data.email);
+              res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ valid: true, newProfile })); return;
             }
 
             const match = await sql`
@@ -240,9 +249,9 @@ function apiPlugin() {
             if (match.length === 0) { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ valid: false, error: 'Invalid or expired code' })); return; }
 
             await sql`UPDATE otp_codes SET used = TRUE WHERE id = ${match[0].id}`;
-            await ensureProfile(data.email);
+            const newProfile = await ensureProfile(data.email);
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ valid: true }));
+            res.end(JSON.stringify({ valid: true, newProfile }));
             return;
           }
 

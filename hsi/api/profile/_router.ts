@@ -5,6 +5,8 @@ import upsert from './_upsert.js';
 import connect from './_connect.js';
 import awardsDelete from './awards/_delete.js';
 import awardsSave from './awards/_save.js';
+import creditsAdd from './credits/_add.js';
+import creditsResearch from './credits/_research.js';
 import creditsSave from './credits/_save.js';
 import experienceDelete from './experience/_delete.js';
 import experienceSave from './experience/_save.js';
@@ -18,6 +20,8 @@ const routes: Record<string, Handler> = {
   'connect': connect,
   'awards/delete': awardsDelete,
   'awards/save': awardsSave,
+  'credits/add': creditsAdd,
+  'credits/research': creditsResearch,
   'credits/save': creditsSave,
   'experience/delete': experienceDelete,
   'experience/save': experienceSave,

@@ -153,7 +153,8 @@ export function LoginPage() {
       if (data.valid) {
         localStorage.setItem('hsi-user-email', trimmed);
         if (data.sessionToken) localStorage.setItem('hsi-session-token', data.sessionToken);
-        navigate('/network');
+        // New members get the option to import their credits first (they can skip it).
+        navigate(data.newProfile ? '/credits/import?welcome=1' : '/network');
       } else {
         setError('Invalid or expired code. Please try again.');
       }

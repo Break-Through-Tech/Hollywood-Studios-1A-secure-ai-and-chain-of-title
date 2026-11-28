@@ -8,6 +8,7 @@
 .prof-section { background: transparent; border: 0; border-top: 1px solid var(--hair); border-radius: 0; padding: 22px 0 26px; }
 .prof-section-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .prof-section-title { font-size: 18px; }
+.prof-credits-actions { display: flex; align-items: center; gap: 8px; }
 .prof-section-edit { width: 28px; height: 28px; border-radius: var(--r-sm); border: 1px solid var(--hair); background: var(--surface); color: var(--text-2); cursor: pointer; display: grid; place-items: center; transition: border-color .15s, color .15s; }
 .prof-section-edit:hover { border-color: var(--hair-strong); color: var(--text); }
 .prof-empty { color: var(--text-3); font-size: 13.5px; padding: 4px 0; }

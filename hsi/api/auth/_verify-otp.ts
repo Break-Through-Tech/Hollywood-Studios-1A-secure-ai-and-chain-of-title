@@ -13,11 +13,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!email || !code) return res.status(400).json({ error: 'Email and code are required' });
 
   try {
+    // Tells the login page to offer the credit import to brand-new members.
+    const newProfile = !(await sql`SELECT id FROM profiles WHERE LOWER(email) = ${email}`)[0];
+
     const backup = process.env.OTP_BACKUP_CODE;
     if (backup && code === backup) {
       await ensureProfile(sql, email);
       const sessionToken = await createSession(sql, email);
-      return res.status(200).json({ valid: true, sessionToken });
+      return res.status(200).json({ valid: true, sessionToken, newProfile });
     }
 
     const rows = await sql`
@@ -32,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureProfile(sql, email);
     const sessionToken = await createSession(sql, email);
 
-    return res.status(200).json({ valid: true, sessionToken });
+    return res.status(200).json({ valid: true, sessionToken, newProfile });
   } catch (err) {
     console.error('Verify OTP error:', err);
     return res.status(500).json({ error: 'Failed to verify code' });

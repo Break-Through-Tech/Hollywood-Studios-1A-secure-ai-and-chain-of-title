@@ -28,6 +28,7 @@ import { SearchPage } from './components/SearchPage';
 import { ProjectsPage } from './components/ProjectsPage';
 import { AnalyticsPage } from './components/AnalyticsPage';
 import { AppLayout } from './components/AppLayout';
+import { CreditImportPage } from './components/credits/CreditImportPage';
 
 // Unlisted deck — lazy so pdf.js stays out of the main bundle.
 const ExecutiveSummaryPage = lazy(() => import('./components/DeckViewerPage'));
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/network" element={<AppLayout><NetworkPage /></AppLayout>} />
         <Route path="/people" element={<AppLayout><PeoplePage /></AppLayout>} />
         <Route path="/messages" element={<AppLayout><MessagesPage /></AppLayout>} />
+        <Route path="/credits/import" element={<AppLayout><CreditImportPage /></AppLayout>} />
         <Route path="/profile/:handle" element={<AppLayout><ProfilePage /></AppLayout>} />
         <Route path="/vault" element={<AppLayout><VaultPage /></AppLayout>} />
         <Route path="/vault/script/:slug" element={<AppLayout><VaultScriptPage /></AppLayout>} />

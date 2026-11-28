@@ -1,0 +1,56 @@
+/* ─── Credit import (/credits/import) ─────────────────────────────────
+   Composes primitives (.btn, .chip, .label, .empty) with .net-card and
+   .app-input; only layout and the item states live here. */
+.ci-page { height: 100%; overflow-y: auto; padding: 32px 28px 80px; background: var(--paper); }
+.ci-content { max-width: 760px; margin: 0 auto; }
+
+.ci-steps { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ci-steps-sep { width: 24px; height: 1px; background: var(--hair-strong); }
+.ci-step-on { color: var(--navy); }
+
+.ci-card { padding: 28px; }
+.ci-title { font-size: 24px; margin-bottom: 8px; }
+.ci-lede { color: var(--text-2); font-size: 14.5px; margin-bottom: 22px; max-width: 62ch; }
+.ci-gap { margin-top: 16px; }
+.ci-help { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
+
+.ci-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; padding: 12px 14px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--hair-2); font-size: 13.5px; color: var(--text-2); cursor: pointer; }
+.ci-consent input { accent-color: var(--navy); width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; }
+
+.ci-error { margin-top: 14px; }
+.ci-searching { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 13.5px; color: var(--text-2); }
+.ci-spinner { width: 16px; height: 16px; border: 2px solid var(--hair); border-top-color: var(--navy); border-radius: 50%; animation: profSpin .8s linear infinite; flex-shrink: 0; }
+
+.ci-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+.ci-actions--sticky { position: sticky; bottom: -80px; padding: 14px 0 0; background: var(--surface); border-top: 1px solid var(--hair-2); }
+.ci-spacer { flex: 1; }
+
+.ci-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.ci-tally { font-size: 12px; color: var(--text-3); }
+
+.ci-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ci-item { display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-md); border: 1px solid var(--hair); background: var(--surface); transition: border-color .15s, background-color .15s, opacity .15s; }
+.ci-item--confirmed { border-color: var(--navy); background: var(--navy-tint); }
+.ci-item--removed { opacity: 0.55; background: var(--surface-2); }
+.ci-item--removed .ci-item-title { text-decoration: line-through; }
+.ci-item--saved { background: var(--surface-2); }
+.ci-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ci-item-head { display: flex; align-items: baseline; gap: 10px; }
+.ci-item-title { font-size: 14.5px; font-weight: 600; }
+.ci-item-year { font-size: 12px; color: var(--text-3); }
+.ci-item-meta { font-size: 13px; color: var(--text-2); }
+.ci-item-source { font-size: 12px; color: var(--text-3); }
+.ci-item-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ci-item-flags .chip { white-space: normal; height: auto; min-height: 24px; padding: 4px 9px; line-height: 1.3; }
+.ci-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ci-btn-removed { background: var(--bad-bg); }
+.ci-empty { padding: 32px 12px; }
+
+@media (max-width: 768px) {
+  .ci-page { padding: 16px 16px 60px; }
+  .ci-actions--sticky { bottom: -60px; padding-bottom: 4px; } /* matches .ci-page bottom padding */
+  .ci-card { padding: 18px; }
+  .ci-item { flex-direction: column; }
+  .ci-item-actions { width: 100%; }
+  .ci-item-actions .btn { flex: 1; }
+}

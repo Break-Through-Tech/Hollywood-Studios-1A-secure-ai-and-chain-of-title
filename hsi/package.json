@@ -14,7 +14,8 @@
     "qa:interactions": "node scripts/qa/interactions.mjs",
     "typecheck:api": "tsc -p tsconfig.api.json",
     "test:api": "node --experimental-strip-types scripts/test-api.mjs",
-    "test:post": "node --experimental-strip-types scripts/test-post-api.mjs"
+    "test:post": "node --experimental-strip-types scripts/test-post-api.mjs",
+    "test:credits": "node --experimental-strip-types --no-warnings --test scripts/test-credit-import.mts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

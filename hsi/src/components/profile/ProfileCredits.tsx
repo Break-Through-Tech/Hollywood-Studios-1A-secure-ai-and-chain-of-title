@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { Credit } from './types';
 import { EditModal, EditButton } from './EditModal';
 import { EntitySearch } from '../entity/EntitySearch';
@@ -27,6 +27,7 @@ const COLLAPSED_COUNT = 6;
 export function ProfileCredits({ credits, isOwner, onUpdate }: { credits: Credit[]; isOwner: boolean; onUpdate: () => void }) {
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const location = useLocation();
 
   const grouped = departmentsIn(credits)
     .map(dept => ({ dept, items: credits.filter(c => c.department === dept) }))
@@ -41,7 +42,12 @@ export function ProfileCredits({ credits, isOwner, onUpdate }: { credits: Credit
     <div className="net-card prof-section">
       <div className="prof-section-header">
         <h3 className="prof-section-title">Credits</h3>
-        {isOwner && <EditButton onClick={() => setEditing(true)} />}
+        {isOwner && (
+          <div className="prof-credits-actions">
+            <Link to={`/credits/import?from=${encodeURIComponent(location.pathname)}`} className="btn btn-sm btn-secondary">Find my credits</Link>
+            <EditButton onClick={() => setEditing(true)} />
+          </div>
+        )}
       </div>
       {grouped.length === 0 ? (
         <p className="prof-empty">No credits yet</p>
